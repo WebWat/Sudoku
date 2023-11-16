@@ -1,9 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace Sudoku
+namespace Sudoku.Necessary
 {
-    internal class Solver
+    internal class Solver9x9
     {
         private readonly List<Cell> _cellsToSolve = new();
         private readonly Cell[,] _cells = new Cell[SUDOKU_GRID.SIZE, SUDOKU_GRID.SIZE];
@@ -13,7 +13,7 @@ namespace Sudoku
             get { return _cells[i, j]; }
         }
 
-        public Solver(string[] input)
+        public Solver9x9(string[] input)
         {
             for (int i = 0; i < SUDOKU_GRID.SIZE; i++)
             {

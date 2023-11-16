@@ -9,7 +9,7 @@
     <Grid x:Name="BaseGrid">
         <Grid.Resources>
             <Style TargetType="Border">
-                <Setter Property="BorderThickness" Value="0.6"></Setter>
+                <Setter Property="BorderThickness" Value="0.7"></Setter>
                 <Setter Property="BorderBrush" Value="Gray"></Setter>
             </Style>
             <Style TargetType="Label">
@@ -18,9 +18,8 @@
                 <Setter Property="HorizontalContentAlignment" Value="Center"></Setter>
             </Style>
             <Style TargetType="TextBox">
-                <Setter Property="BorderBrush" Value="Gray"></Setter>
-                <Setter Property="BorderThickness" Value="0.8"></Setter>
-                <Setter Property="FontSize" Value="30"></Setter>
+                <Setter Property="BorderThickness" Value="0"></Setter>
+                <Setter Property="FontSize" Value="28"></Setter>
                 <Setter Property="VerticalContentAlignment" Value="Center"></Setter>
                 <Setter Property="HorizontalContentAlignment" Value="Center"></Setter>
             </Style>
@@ -87,8 +86,8 @@
             </UniformGrid>
         </Border>-->
 
-        <ToggleButton Content="Режим заметок" Grid.Column="1" Grid.Row="6" Checked="NoteMode_Checked" Unchecked="NoteMode_Unchecked"></ToggleButton>
-        <ToggleButton Content="Режим предотвращения ошибок" Grid.Column="2" Grid.Row="6" Checked="ErrorPrevention_Checked" Unchecked="ErrorPrevention_Unchecked"></ToggleButton>
+        <ToggleButton x:Name="NoteMode" Content="Режим заметок" Grid.Column="1" Grid.Row="6" Checked="NoteMode_Checked" Unchecked="NoteMode_Unchecked"></ToggleButton>
+        <ToggleButton x:Name="ErrorPreventionMode"  Content="Режим предотвращения ошибок" Grid.Column="2" Grid.Row="6" Checked="ErrorPreventionMode_Checked" Unchecked="ErrorPreventionMode_Unchecked"></ToggleButton>
 
     </Grid>
 </Window>

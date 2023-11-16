@@ -1,4 +1,4 @@
-﻿namespace Sudoku
+﻿namespace Sudoku.Necessary
 {
     internal enum Difficult
     {

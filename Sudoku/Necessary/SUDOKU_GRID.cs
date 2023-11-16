@@ -1,4 +1,4 @@
-﻿namespace Sudoku
+﻿namespace Sudoku.Necessary
 {
     public sealed class SUDOKU_GRID
     {

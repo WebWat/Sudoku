@@ -1,12 +1,12 @@
 ﻿using System.Windows.Controls;
 
-namespace Sudoku
+namespace Sudoku.Necessary
 {
     internal class UICell
     {
         public int Row { get; init; }
         public int Column { get; init; }
-        public TextBox TextBox { get; init; }
-        public Label[] Labels { get; set; }
+        public TextBox TextBox { get; init; } = default!;
+        public Label[]? Labels { get; set; }
     }
 }
