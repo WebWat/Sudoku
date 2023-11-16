@@ -87,6 +87,8 @@
             </UniformGrid>
         </Border>-->
 
-        <ToggleButton Content="Режим заметок" Grid.Column="1" Grid.Row="6" Checked="ToggleButton_Checked" Unchecked="ToggleButton_Unchecked"></ToggleButton>
+        <ToggleButton Content="Режим заметок" Grid.Column="1" Grid.Row="6" Checked="NoteMode_Checked" Unchecked="NoteMode_Unchecked"></ToggleButton>
+        <ToggleButton Content="Режим предотвращения ошибок" Grid.Column="2" Grid.Row="6" Checked="ErrorPrevention_Checked" Unchecked="ErrorPrevention_Unchecked"></ToggleButton>
+
     </Grid>
 </Window>

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -24,18 +25,21 @@ namespace Sudoku
     /// </summary>
     public partial class MainWindow : Window
     {
-        private Dictionary<int, (TextBox, Label[])> _cellsData = new Dictionary<int, (TextBox, Label[])>();
+        private Dictionary<int, UICell> _cellsData = new Dictionary<int, UICell>();
         private Dictionary<int, Border> _borders = new Dictionary<int, Border>();
 
         private const int _rowOffset = 2;
         private const int _columnOffset = 1;
 
-        private BrushConverter _converter = new();
+        private Solver solver;
         private bool _noteModeEnabled = false;
+        private bool _errorPreventionModeEnabled = false;
 
         public MainWindow()
         {
             InitializeComponent();
+
+            solver = new Solver(Solver.Generate(Difficult.Easy));
 
             for (int i = 0; i < SUDOKU_GRID.BOX_SIZE; i++)
             {
@@ -44,13 +48,15 @@ namespace Sudoku
                     CreateBox(i + _rowOffset, j + _columnOffset);
                 }
             }
+
+            solver.TrySolve();
         }
 
         private void CreateBox(int row, int column)
         {
             var boxBorder = new Border();
 
-            boxBorder.BorderBrush = _converter.ConvertFromString("Black") as Brush;
+            boxBorder.BorderBrush = Brushes.Black;
             boxBorder.SetValue(Grid.RowProperty, row);
             boxBorder.SetValue(Grid.ColumnProperty, column);
 
@@ -78,103 +84,147 @@ namespace Sudoku
         private Grid CreateCell(int row, int column)
         {
             var container = new Grid();
-
-            //container.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(0.5) });
-            //container.RowDefinitions.Add(new RowDefinition());
-            //container.RowDefinitions.Add(new RowDefinition() { Height = new GridLength(0.5) });
-
-            //container.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(0.5) });
-            //container.ColumnDefinitions.Add(new ColumnDefinition());
-            //container.ColumnDefinitions.Add(new ColumnDefinition() { Width = new GridLength(0.5) });
-
             var border = new Border();
-            //border.SetValue(Grid.RowProperty, 1);
-            //border.SetValue(Grid.ColumnProperty, 1);
-
-            var labelsGrid = new UniformGrid();
             var textBox = new TextBox();
-            //textBox.SetValue(Grid.RowProperty, 1);
-            //textBox.SetValue(Grid.ColumnProperty, 1);
+            Label[] labels = default;
 
-            textBox.PreviewTextInput += TextBox_PreviewTextInput;
-            textBox.PreviewKeyDown += TextBox_PreviewKeyDown;
-            textBox.GotFocus += UniformGrid_GotFocus;
-            textBox.LostFocus += UniformGrid_LostFocus;
-
-            var _labels = new Label[SUDOKU_GRID.SIZE];
-
-            for (int i = 0; i < SUDOKU_GRID.SIZE; i++)
+            if (solver[row, column].ToString() != string.Empty)
             {
-                var label = new Label();
+                textBox.Text = solver[row, column].ToString();
+            }
+            else
+            {
+                var labelsGrid = new UniformGrid();
+                labels = new Label[SUDOKU_GRID.SIZE];
 
-                _labels[i] = label;
-                labelsGrid.Children.Add(label);
+                for (int i = 0; i < SUDOKU_GRID.SIZE; i++)
+                {
+                    var label = new Label();
+
+                    labels[i] = label;
+                    labelsGrid.Children.Add(label);
+                }
+
+                border.Child = labelsGrid;
             }
 
-            border.Child = labelsGrid;
+            textBox.IsReadOnly = true;
+            textBox.PreviewTextInput += TextBox_PreviewTextInput;
+            textBox.PreviewKeyDown += TextBox_PreviewKeyDown;
+            textBox.GotFocus += TextBox_GotFocus;
+            textBox.LostFocus += TextBox_LostFocus;
 
             container.Children.Add(border);
-            _borders.Add(textBox.GetHashCode(), border);
-            _cellsData.Add(textBox.GetHashCode(), (textBox, _labels));
             container.Children.Add(textBox);
+
+            _borders.Add(textBox.GetHashCode(), border);
+            _cellsData.Add(textBox.GetHashCode(), new UICell 
+            { 
+                Row = row,
+                Column = column,
+                TextBox = textBox,
+                Labels = labels
+            });
 
             return container;
         }
 
         private void TextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
-            (TextBox textBox, Label[] labels) = _cellsData[((TextBox)sender).GetHashCode()];
+            var data = _cellsData[((TextBox)sender).GetHashCode()];
+            var answer = solver[data.Row, data.Column].ToString();
+
+            if (data.Labels == null || !int.TryParse(e.Text, out _))
+            {
+                return;
+            }
+
+            if (_errorPreventionModeEnabled)
+            {
+                if (e.Text != answer)
+                {
+                    var rowError = _cellsData.Values
+                        .FirstOrDefault(i => i.Row == data.Row && i.TextBox.Text == answer);
+
+                    var columnError = _cellsData.Values
+                        .FirstOrDefault(i => i.Column == data.Column && i.TextBox.Text == answer);
+
+                    var rowInc = data.Row - (data.Row % SUDOKU_GRID.BOX_SIZE);
+                    var columnInc = data.Column - (data.Column % SUDOKU_GRID.BOX_SIZE);
+                    var boxError = _cellsData.Values
+                        .FirstOrDefault(i => 
+                        i.Row <= data.Row &&
+                        i.Row + rowInc + SUDOKU_GRID.BOX_SIZE >= data.Row &&
+                        i.Column + columnInc <= data.Column &&
+                        i.Column + columnInc + SUDOKU_GRID.BOX_SIZE >= data.Column &&
+                        i.TextBox.Text == answer);
+                }
+            }
 
             if (_noteModeEnabled)
             {
+                if (data.TextBox.Text.Length == 1)
+                {
+                    return;
+                }
+
                 switch (e.Text)
                 {
                     case "1":
-                        labels[0].Content = labels[0].Content == null ? "1" : null;
+                        data.Labels[0].Content = data.Labels[0].Content == null ? "1" : null;
                         break;
                     case "2":
-                        labels[1].Content = labels[1].Content == null ? "2" : null;
+                        data.Labels[1].Content = data.Labels[1].Content == null ? "2" : null;
                         break;
                     case "3":
-                        labels[2].Content = labels[2].Content == null ? "3" : null;
+                        data.Labels[2].Content = data.Labels[2].Content == null ? "3" : null;
                         break;
                     case "4":
-                        labels[3].Content = labels[3].Content == null ? "4" : null;
+                        data.Labels[3].Content = data.Labels[3].Content == null ? "4" : null;
                         break;
                     case "5":
-                        labels[4].Content = labels[4].Content == null ? "5" : null;
+                        data.Labels[4].Content = data.Labels[4].Content == null ? "5" : null;
                         break;
                     case "6":
-                        labels[5].Content = labels[5].Content == null ? "6" : null;
+                        data.Labels[5].Content = data.Labels[5].Content == null ? "6" : null;
                         break;
                     case "7":
-                        labels[6].Content = labels[6].Content == null ? "7" : null;
+                        data.Labels[6].Content = data.Labels[6].Content == null ? "7" : null;
                         break;
                     case "8":
-                        labels[7].Content = labels[7].Content == null ? "8" : null;
+                        data.Labels[7].Content = data.Labels[7].Content == null ? "8" : null;
                         break;
                     case "9":
-                        labels[8].Content = labels[8].Content == null ? "9" : null;
+                        data.Labels[8].Content = data.Labels[8].Content == null ? "9" : null;
                         break;
                     default:
                         break;
                 }
             }
-            else
+            else if (data.TextBox.Opacity == 0)
             {
-                if (textBox.Opacity++ == 0)
+                for (int i = 0; i < data.Labels.Count(); i++)
                 {
-                    for (int i = 0; i < labels.Count(); i++)
-                    {
-                        labels[i].Content = null;
-                    }
+                    data.Labels[i].Content = null;
                 }
+
+                data.TextBox.Opacity++;
             }
 
-            if (textBox.Text.Length == 1 || !int.TryParse(e.Text, out _))
+            if (!_noteModeEnabled && e.Text != answer)
             {
-                e.Handled = true;
+                data.TextBox.Foreground = Brushes.Red;
             }
+            else if(!_noteModeEnabled)
+            {
+                data.TextBox.Foreground = Brushes.Black;
+                data.Labels = null;
+                Keyboard.ClearFocus();
+            }
+
+            e.Handled = true;
+
+            data.TextBox.Text = _noteModeEnabled ? null : e.Text;
         }
 
         private void TextBox_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -185,59 +235,62 @@ namespace Sudoku
             }
         }
 
-        private void ToggleButton_Checked(object sender, RoutedEventArgs e)
+        private void NoteMode_Checked(object sender, RoutedEventArgs e)
         {
             _noteModeEnabled = true;
 
             foreach (var item in _cellsData)
             {
-                var (textBox, labels) = item.Value;
+                var data = item.Value;
 
                 // Если ячейка пуста или есть заметки, то скрываем поле для ввода
-                if (textBox.Text.Length == 0 ||
-                    labels.FirstOrDefault(i => i.Content != null) != null)
+                if (
+                     data.Labels != null && (
+                     data.TextBox.Text.Length == 0 ||
+                     data.Labels.FirstOrDefault(i => i.Content != null) != null)
+                   )
                 {
 
-                    textBox.Opacity = 0;
-                }
-                else
-                {
-                    textBox.IsEnabled = false;
+                    data.TextBox.Opacity = 0;
                 }
             }
         }
 
-        private void ToggleButton_Unchecked(object sender, RoutedEventArgs e)
+        private void NoteMode_Unchecked(object sender, RoutedEventArgs e)
         {
             _noteModeEnabled = false;
 
             foreach (var item in _cellsData)
             {
-                var (textBox, labels) = item.Value;
+                var data = item.Value;
 
-                // Если ячейка пуста или есть заметки, то скрываем поле для ввода
-                if (textBox.Text.Length != 0 && !textBox.IsEnabled)
-                {
-
-                    textBox.IsEnabled = true;
-                }
                 // Если подсказки не добавлены, то показываем поля ввода
-                else if (labels.FirstOrDefault(i => i.Content != null) == null)
+                if (data.Labels != null && data.Labels.FirstOrDefault(i => i.Content != null) == null)
                 {
-                    textBox.Text = string.Empty;
-                    textBox.Opacity = 1;
+                    data.TextBox.Opacity = 1;
                 }
             }
         }
 
-        private void UniformGrid_GotFocus(object sender, RoutedEventArgs e)
+        private void ErrorPrevention_Checked(object sender, RoutedEventArgs e)
         {
-            _borders[((TextBox)sender).GetHashCode()].BorderBrush = _converter.ConvertFromString("#569de5") as Brush;
+            _errorPreventionModeEnabled = true;
         }
 
-        private void UniformGrid_LostFocus(object sender, RoutedEventArgs e)
+        private void ErrorPrevention_Unchecked(object sender, RoutedEventArgs e)
         {
-            _borders[((TextBox)sender).GetHashCode()].BorderBrush = _converter.ConvertFromString("Gray") as Brush;
+            _errorPreventionModeEnabled = false;
+        }
+
+        private void TextBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            _borders[((TextBox)sender).GetHashCode()].BorderBrush = 
+                new SolidColorBrush(Color.FromRgb(86, 157, 229));
+        }
+
+        private void TextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            _borders[((TextBox)sender).GetHashCode()].BorderBrush = Brushes.Gray;
         }
 
         private void Menu_Easy_Click(object sender, RoutedEventArgs e)

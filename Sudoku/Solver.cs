@@ -6,10 +6,14 @@ namespace Sudoku
     internal class Solver
     {
         private readonly List<Cell> _cellsToSolve = new();
-        private string[] _sudoku = new[] { "IMPOSSIBLE" };
         private readonly Cell[,] _cells = new Cell[SUDOKU_GRID.SIZE, SUDOKU_GRID.SIZE];
 
-        public Solver()
+        public Cell this[int i, int j]
+        {
+            get { return _cells[i, j]; }
+        }
+
+        public Solver(string[] input)
         {
             for (int i = 0; i < SUDOKU_GRID.SIZE; i++)
             {
@@ -19,8 +23,8 @@ namespace Sudoku
                     {
                         X = i,
                         Y = j,
-                        Solved = _sudoku[i][j] != 'x',
-                        Number = _sudoku[i][j] - '0'
+                        Solved = input[i][j] != '0',
+                        Number = input[i][j] - '0'
                     };
 
                     if (!_cells[i, j].Solved)
@@ -29,26 +33,9 @@ namespace Sudoku
             }
         }
 
-        public void Input()
+        public bool TrySolve()
         {
-            _sudoku = new string[SUDOKU_GRID.SIZE];
-
-            _sudoku[0] = "1x6xxxx3x";
-            _sudoku[1] = "x2xx184xx";
-            _sudoku[2] = "xxx7xxxxx";
-            _sudoku[3] = "3xxx75x4x";
-            _sudoku[4] = "xxx2xx7xx";
-            _sudoku[5] = "x5x9xxxxx";
-            _sudoku[6] = "xxxxx9xxx";
-            _sudoku[7] = "x8xx541xx";
-            _sudoku[8] = "2xxxxxxx8";
-        }
-
-        public string[] Solve()
-        {
-            return SolveNext(0)
-                 ? new[] { "Solved" }
-                 : new[] { "IMPOSSIBLE" };
+            return SolveNext(0);
         }
 
         private bool SolveNext(int index)
@@ -118,6 +105,22 @@ namespace Sudoku
             for (int i = iBox * SUDOKU_GRID.BOX_SIZE; i < (iBox + 1) * SUDOKU_GRID.BOX_SIZE; i++)
                 for (int j = jBox * SUDOKU_GRID.BOX_SIZE; j < (jBox + 1) * SUDOKU_GRID.BOX_SIZE; j++)
                     yield return _cells[i, j];
+        }
+
+        public static string[] Generate(Difficult difficult)
+        {
+            return new string[]
+            {
+                "378410200",
+                "560008000",
+                "000760001",
+                "000300800",
+                "032100690",
+                "006284357",
+                "004000005",
+                "050031946",
+                "610000708",
+            };
         }
     }
 }
