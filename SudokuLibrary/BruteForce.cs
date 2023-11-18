@@ -11,8 +11,11 @@ namespace SudokuLibrary
         private readonly Cell[,] _cells;
         private readonly List<Cell> _cellsToSolve = new();
 
-        private int _deep = 0;
-        private const int _maxDeep = 15_000;
+        private int _iteration = 0;
+        private const int _maxIterations = 1500_000;
+        private int _answers = -1;
+        private Dictionary<int, int> dict = new();
+        private int _maxDeep;
 
         public BruteForce(int size, int boxSize) : base(size, boxSize)
         {
@@ -21,7 +24,7 @@ namespace SudokuLibrary
         
         public override bool TrySolve(int[,] sudoku, int[,] result)
         {
-            _deep = 0;
+            _iteration = 0;
             _cellsToSolve.Clear();
 
             for (int i = 0; i < _size; i++)
@@ -41,7 +44,32 @@ namespace SudokuLibrary
                 }
             }
 
-            var isSolved = SolveNext(0);
+            var isSolved = SolveNext(0, 0);
+
+
+            if (isSolved)
+            {
+                _iteration = 0;
+                _cellsToSolve.Clear();
+
+                for (int i = 0; i < _size; i++)
+                {
+                    for (int j = 0; j < _size; j++)
+                    {
+                        _cells[i, j] = new Cell
+                        {
+                            X = i,
+                            Y = j,
+                            Solved = sudoku[i, j] != 0,
+                            Number = sudoku[i, j]
+                        };
+
+                        if (!_cells[i, j].Solved)
+                            _cellsToSolve.Add(_cells[i, j]);
+                    }
+                }
+                isSolved =  SolveNext(0, 0);
+            }
 
             if (isSolved)
             {
@@ -57,28 +85,48 @@ namespace SudokuLibrary
             return isSolved;
         }
 
-        private bool SolveNext(int index)
+        private bool SolveNext(int index, int deep)
         {
-            if (_deep++ > _maxDeep)
+            if (_iteration++ > _maxIterations)
                 return false;
 
             if (index == _cellsToSolve.Count)
+            {
+                _answers = 1;
                 return true;
+            }
 
             var cell = _cellsToSolve[index];
             var markers = GetMarkers(cell);
+            var value = dict.TryGetValue(deep, out _) ? 1 : -1;
 
             cell.Solved = true;
 
             for (int i = 0; i < markers.Count; i++)
             {
-                if (_deep > _maxDeep)
+                if (_iteration > _maxIterations)
                     return false;
 
-                cell.Number = markers[i];
+                if (value == 1)
+                {
+                    value--;
+                    continue;
+                }
+                else
+                    cell.Number = markers[i];
 
-                if (SolveNext(index + 1))
+                if (SolveNext(index + 1, deep + 1))
+                {
+                    if (_answers != 1)
+                        dict.Add(deep, cell.Number);
                     return true;
+                }
+            }
+
+            if (value == 0)
+            {
+                dict.Remove(deep);
+                return SolveNext(index, deep);
             }
 
             cell.Solved = false;
@@ -92,7 +140,7 @@ namespace SudokuLibrary
             //var column = GetColumn(cell.Y);
 
             //var box = GetBox(cell.X, cell.Y);
-            //row.Concat(column)
+            //var solvedNumbers = row.Concat(column)
             //                       .Concat(box)
             //                       .Where(x => x.Solved)
             //                       .Select(x => x.Number)
