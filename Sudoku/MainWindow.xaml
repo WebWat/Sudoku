@@ -41,7 +41,7 @@
             <ColumnDefinition></ColumnDefinition>
             <ColumnDefinition Width="10"></ColumnDefinition>
         </Grid.ColumnDefinitions>
-        
+
         <Menu Height="20" Grid.ColumnSpan="6">
             <MenuItem Header="Новая игра">
                 <MenuItem Header="Легкий уровень" Click="Menu_Easy_Click"></MenuItem>
@@ -51,43 +51,7 @@
             <MenuItem Header="Таблица рекордов"></MenuItem>
         </Menu>
 
-        <!--<Border Grid.Row="2" Grid.Column="1">
-            <UniformGrid Rows="3" Columns="3">
-                <Grid x:Name="box_1">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1"></ColumnDefinition>
-                        <ColumnDefinition></ColumnDefinition>
-                        <ColumnDefinition Width="1"></ColumnDefinition>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="1"></RowDefinition>
-                        <RowDefinition></RowDefinition>
-                        <RowDefinition Height="1"></RowDefinition>
-                    </Grid.RowDefinitions>
-                    <Border Grid.Row="1" Grid.Column="1" Name="border_1">
-                        <UniformGrid>
-                            <Label></Label>
-                            <Label></Label>
-                            <Label></Label>
-                            <Label></Label>
-                            <Label></Label>
-                            <Label></Label>
-                            <Label></Label>
-                            <Label></Label>
-                            <Label></Label>
-                        </UniformGrid>
-                    </Border>
-                    <TextBox Grid.Row="1" Grid.Column="1" Name="cell_1_1"
-                 Text="5" 
-                 PreviewTextInput="TextBox_PreviewTextInput"
-                 PreviewKeyDown="TextBox_PreviewKeyDown"
-                 GotFocus="GotMouseCapture" LostFocus="LostMouseCapture"></TextBox>
-                </Grid>
-            </UniformGrid>
-        </Border>-->
-
         <ToggleButton x:Name="NoteMode" Content="Режим заметок" Grid.Column="1" Grid.Row="6" Checked="NoteMode_Checked" Unchecked="NoteMode_Unchecked"></ToggleButton>
         <ToggleButton x:Name="ErrorPreventionMode"  Content="Режим предотвращения ошибок" Grid.Column="2" Grid.Row="6" Checked="ErrorPreventionMode_Checked" Unchecked="ErrorPreventionMode_Unchecked"></ToggleButton>
-
     </Grid>
 </Window>

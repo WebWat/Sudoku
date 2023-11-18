@@ -1,4 +1,5 @@
 ﻿using Sudoku.Necessary;
+using SudokuLibrary;
 using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
@@ -20,13 +21,13 @@ namespace Sudoku
         private const int _columnOffset = 1;
 
         // Решение судоку
-        private Solver9x9 solver;
+        private Sudoku9x9 _sudoku;
 
         // Конфликтные ячейки для выделения в режиме "Предотвращение ошибок"
-        private TextBox? rowError;
-        private TextBox? columnError;
-        private TextBox? boxError;
-        private TextBox? currentError;
+        private TextBox? _rowError;
+        private TextBox? _columnError;
+        private TextBox? _boxError;
+        private TextBox? _currentError;
 
         private readonly SolidColorBrush _focusBackgroundColor = new(Color.FromRgb(190, 230, 253));
         private readonly SolidColorBrush _errorForegroundColor = new(Color.FromRgb(192, 38, 38));
@@ -35,7 +36,7 @@ namespace Sudoku
         {
             InitializeComponent();
 
-            solver = new Solver9x9(Solver9x9.Generate(Difficult.Easy));
+            _sudoku = new Sudoku9x9(Difficult.Easy);
 
             for (int i = 0; i < SUDOKU_GRID.BOX_SIZE; i++)
             {
@@ -43,9 +44,7 @@ namespace Sudoku
                 {
                     CreateBox(i + _rowOffset, j + _columnOffset);
                 }
-            }
-
-            solver.TrySolve();
+            }       
         }
 
         // Метод для создания UniformGrid размером 3x3
@@ -102,10 +101,11 @@ namespace Sudoku
             textBox.SetValue(Grid.ColumnProperty, 1);
 
             Label[]? labels = default;
+            var value = _sudoku.Generated[row, column].ToString();
 
-            if (solver[row, column].ToString() != string.Empty)
+            if (value != "0")
             {
-                textBox.Text = solver[row, column].ToString();
+                textBox.Text = value;
             }
             else
             {
@@ -144,42 +144,42 @@ namespace Sudoku
             return container;
         }
 
-        // Возвращаем значения по умолчанию для ячеек ошибок
+        // Возвращаем значения по умолчанию для ячеек конфликтов
         // и удаляем ссылки на них
-        private void ClearErrorCells(bool isUnchecked)
+        private void ClearErrorCells(bool isUnchecked, object reference)
         {
-            if (rowError != null)
+            if (_rowError != null)
             {
-                rowError.Foreground = Brushes.Black;
-                rowError = null;
+                _rowError.Foreground = Brushes.Black;
+                _rowError = null;
             }
 
-            if (columnError != null)
+            if (_columnError != null)
             {
-                columnError.Foreground = Brushes.Black;
-                columnError = null;
+                _columnError.Foreground = Brushes.Black;
+                _columnError = null;
             }
 
-            if (boxError != null)
+            if (_boxError != null)
             {
-                boxError.Foreground = Brushes.Black;
-                boxError = null;
+                _boxError.Foreground = Brushes.Black;
+                _boxError = null;
             }
 
-            if (currentError != null)
+            if (_currentError != null)
             {
-                if (isUnchecked)
+                if (isUnchecked || !_currentError.Equals(reference))
                 {
-                    currentError.Background = Brushes.White;
-                    _borders[currentError.GetHashCode()].Background = Brushes.White;
+                    _currentError.Background = Brushes.White;
+                    _borders[_currentError.GetHashCode()].Background = Brushes.White;
                 }
                 else
                 {
-                    currentError.Background = _focusBackgroundColor;
-                    _borders[currentError.GetHashCode()].Background = _focusBackgroundColor;
+                    _currentError.Background = _focusBackgroundColor;
+                    _borders[_currentError.GetHashCode()].Background = _focusBackgroundColor;
                 }
 
-                currentError = null;
+                _currentError = null;
             }
         }
 
@@ -196,7 +196,7 @@ namespace Sudoku
             }
 
             // Получаем правильно значение для текущего поля
-            var answer = solver[data.Row, data.Column].ToString();
+            var answer = _sudoku.Solved[data.Row, data.Column].ToString();
 
             // Отклоняем ввод
             e.Handled = true;
@@ -263,17 +263,17 @@ namespace Sudoku
             if (ErrorPreventionMode.IsChecked == true)
             {
                 // Очищаем конфликтные ячейки
-                ClearErrorCells(false);
+                ClearErrorCells(false, sender);
 
                 // Если ответ неверен, то выделяем конфликтующие ячейки
                 if (e.Text != answer)
                 {
                     // Ищем ошибку в строке
-                    rowError = _cellsData.Values.FirstOrDefault(cell =>
+                    _rowError = _cellsData.Values.FirstOrDefault(cell =>
                         cell.Row == data.Row && cell.TextBox.Text == e.Text)?.TextBox;
 
                     // Ищем ошибку в столбце
-                    columnError = _cellsData.Values.FirstOrDefault(cell =>
+                    _columnError = _cellsData.Values.FirstOrDefault(cell =>
                         cell.Column == data.Column && cell.TextBox.Text == e.Text)?.TextBox;
 
                     var rowLeftBorder = data.Row - (data.Row % SUDOKU_GRID.BOX_SIZE);
@@ -282,21 +282,21 @@ namespace Sudoku
                     var columnRightBorder = columnLeftBorder + SUDOKU_GRID.BOX_SIZE;
 
                     // Ищем ошибку в квадрате
-                    boxError = _cellsData.Values.FirstOrDefault(cell =>
+                    _boxError = _cellsData.Values.FirstOrDefault(cell =>
                         cell.Row >= rowLeftBorder && cell.Row < rowRightBorder &&
                         cell.Column >= columnLeftBorder && cell.Column < columnRightBorder &&
                         cell.TextBox.Text == e.Text)?.TextBox;
 
                     // Если нашли, то меняем цвет
-                    if (rowError != null) rowError.Foreground = _errorForegroundColor;
-                    if (columnError != null) columnError.Foreground = _errorForegroundColor;
-                    if (boxError != null) boxError.Foreground = _errorForegroundColor;
+                    if (_rowError != null) _rowError.Foreground = _errorForegroundColor;
+                    if (_columnError != null) _columnError.Foreground = _errorForegroundColor;
+                    if (_boxError != null) _boxError.Foreground = _errorForegroundColor;
 
                     // Если ничего не нашли, то выделяем текущую ячейку
-                    if (rowError == null && columnError == null && boxError == null)
+                    if (_rowError == null && _columnError == null && _boxError == null)
                     {
                         data.TextBox.Background = _errorForegroundColor;
-                        currentError = data.TextBox;
+                        _currentError = data.TextBox;
                         _borders[data.TextBox.GetHashCode()].Background = _errorForegroundColor;
                     }
                 }
@@ -411,7 +411,7 @@ namespace Sudoku
                 var data = item.Value;
 
                 // Если введены неверные ответы, то очищаем ячейки
-                if (data.TextBox.Text != solver[data.Row, data.Column].ToString())
+                if (data.TextBox.Text != _sudoku.Solved[data.Row, data.Column].ToString())
                 {
                     data.TextBox.Text = null;
                     data.TextBox.Foreground = Brushes.Black;
@@ -422,12 +422,37 @@ namespace Sudoku
         private void ErrorPreventionMode_Unchecked(object sender, RoutedEventArgs e)
         {
             // Очищаем конфликтные ячейки
-            ClearErrorCells(true);
+            ClearErrorCells(true, null);
         }
 
         private void Menu_Easy_Click(object sender, RoutedEventArgs e)
         {
+            //solver = new Solver9x9(Difficult.Easy);
+            //int i = 0;
+            //int j = -1;
 
+            //foreach (var item in _cellsData)
+            //{
+            //    i = j++ - SUDOKU_GRID.SIZE == 0 ? i + 1 : i;
+
+            //    var data = item.Value;
+            //    var value = solver.Generated[i, j].ToString();
+
+            //    if (value != "0")
+            //    {
+            //        data.TextBox.Text = value;
+            //    }
+            //    else
+            //    {
+            //        data.TextBox
+            //    }
+            //    // Если введены неверные ответы, то очищаем ячейки
+            //    if (data.TextBox.Text != solver[data.Row, data.Column].ToString())
+            //    {
+            //        data.TextBox.Text = null;
+            //        data.TextBox.Foreground = Brushes.Black;
+            //    }
+            //}
         }
         // ********************************
     }

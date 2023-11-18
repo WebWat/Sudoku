@@ -1,6 +1,6 @@
-﻿namespace Sudoku.Necessary
+﻿namespace SudokuLibrary
 {
-    internal enum Difficult
+    public enum Difficult
     {
         Easy = 0,
         Medium,
