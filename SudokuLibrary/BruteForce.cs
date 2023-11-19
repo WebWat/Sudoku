@@ -1,18 +1,17 @@
 ﻿using SudokuLibrary.Base;
+using System.Text;
 
 namespace SudokuLibrary
 {
     public class BruteForce : Algorithm
     {
-        public override bool UniqueSolution => false;
-
         private readonly Cell[,] _cells;
         private readonly List<Cell> _cellsToSolve = new();
 
         private int _iteration = 0;
         private const int _maxIterations = 15000_000;
         private Dictionary<int, int> _solve = new();
-        private Dictionary<Cell, List<int>> _markersBuffer = new();
+        private Dictionary<int, List<int>> _markersBuffer = new();
 
         public BruteForce(int size, int boxSize) : base(size, boxSize)
         {
@@ -24,13 +23,13 @@ namespace SudokuLibrary
             _iteration = 0;
             _solve.Clear();
             Initialize(sudoku);
-            var isSolved = SolveNextFirst(0);
+            var isSolved = SolveNextFirst(0, "");
 
 
             if (isSolved)
             {
                 Initialize(sudoku);
-                isSolved = !SolveNextSecond(0, false);
+                isSolved = !SolveNextSecond(0, "", false);
             }
 
             if (isSolved)
@@ -70,7 +69,7 @@ namespace SudokuLibrary
             }
         }
 
-        private bool SolveNextFirst(int index)
+        private bool SolveNextFirst(int index, string path)
         {
             if (_iteration++ > _maxIterations)
                 return false;
@@ -79,7 +78,8 @@ namespace SudokuLibrary
                 return true;
 
             var cell = _cellsToSolve[index];
-            var markers = GetMarkers(cell);
+            //path += cell.Number;
+            var markers = GetMarkers(cell, path + cell.Number);
 
             cell.Solved = true;
 
@@ -90,7 +90,7 @@ namespace SudokuLibrary
 
                 cell.Number = markers[i];
 
-                if (SolveNextFirst(index + 1))
+                if (SolveNextFirst(index + 1, path + cell.Number))
                 {
                     _solve.Add(index, cell.Number);
                     return true;
@@ -101,13 +101,13 @@ namespace SudokuLibrary
             return false;
         }
 
-        private bool SolveNextSecond(int index, bool newPath)
+        private bool SolveNextSecond(int index, string path, bool newPath)
         {
             if (index == _cellsToSolve.Count)
                 return newPath;
 
             var cell = _cellsToSolve[index];
-            var markers = GetMarkers(cell);
+            var markers = GetMarkers(cell, path + cell.Number);
 
             cell.Solved = true;
 
@@ -121,7 +121,7 @@ namespace SudokuLibrary
                 {
                     cell.Number = markers[i];
                 }
-                if (SolveNextSecond(index + 1, true))
+                if (SolveNextSecond(index + 1, path + cell.Number, true))
                 {
                     return true;
                 }
@@ -130,37 +130,29 @@ namespace SudokuLibrary
             if (!newPath)
             {
                 cell.Number = _solve[index];
-                return SolveNextSecond(index + 1, false);
+                return SolveNextSecond(index + 1, path + cell.Number, false);
             }
 
             cell.Solved = false;
             return false;
         }
 
-        private List<int> GetMarkers(Cell cell)
+        private List<int> GetMarkers(Cell cell,string path)
         {
-            //var row = GetRow(cell.X);
-
-            //var column = GetColumn(cell.Y);
-
-            //var box = GetBox(cell.X, cell.Y);
-            //var solvedNumbers = row.Concat(column)
-            //                       .Concat(box)
-            //                       .Where(x => x.Solved)
-            //                       .Select(x => x.Number)
-            //                       .ToList();
-
-
             List<int> markers;
 
-            //int key = cell.X * 10 + cell.Y * 1;
-            Console.Write($"Key: {cell.X} {cell.Y} -> ");
+            int key = path.GetHashCode();
 
-            if (!_markersBuffer.TryGetValue(cell, out markers))
+            if (!_markersBuffer.TryGetValue(key, out markers))
             {
                 markers = new();
 
                 var solvedNumbers = GetAll(cell.X, cell.Y);
+
+                if (solvedNumbers.Count == 9)
+                {
+                    return markers;
+                }
 
                 for (int possibleNumber = 1; possibleNumber <= _size; possibleNumber++)
                 {
@@ -168,13 +160,13 @@ namespace SudokuLibrary
                         markers.Add(possibleNumber);
                 }
 
-                _markersBuffer.Add(cell, markers);
-                Console.Write($"created, ");
+                _markersBuffer.Add(key, markers);
+            }
+            else
+            {
+                //Console.WriteLine("get");
             }
 
-            Console.Write($"get");
-
-            Console.WriteLine();
             return markers;
         }
 
