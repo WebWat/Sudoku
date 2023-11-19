@@ -1,6 +1,4 @@
 ﻿using SudokuLibrary.Base;
-using System.Data.Common;
-using System.Drawing;
 
 namespace SudokuLibrary
 {
@@ -12,63 +10,27 @@ namespace SudokuLibrary
         private readonly List<Cell> _cellsToSolve = new();
 
         private int _iteration = 0;
-        private const int _maxIterations = 1500_000;
-        private int _answers = -1;
-        private Dictionary<int, int> dict = new();
-        private int _maxDeep;
+        private const int _maxIterations = 15000_000;
+        private Dictionary<int, int> _solve = new();
+        private Dictionary<Cell, List<int>> _markersBuffer = new();
 
         public BruteForce(int size, int boxSize) : base(size, boxSize)
         {
             _cells = new Cell[size, size];
         }
-        
+
         public override bool TrySolve(int[,] sudoku, int[,] result)
         {
             _iteration = 0;
-            _cellsToSolve.Clear();
-
-            for (int i = 0; i < _size; i++)
-            {
-                for (int j = 0; j < _size; j++)
-                {
-                    _cells[i, j] = new Cell
-                    {
-                        X = i,
-                        Y = j,
-                        Solved = sudoku[i, j] != 0,
-                        Number = sudoku[i, j]
-                    };
-
-                    if (!_cells[i, j].Solved)
-                        _cellsToSolve.Add(_cells[i, j]);
-                }
-            }
-
-            var isSolved = SolveNext(0, 0);
+            _solve.Clear();
+            Initialize(sudoku);
+            var isSolved = SolveNextFirst(0);
 
 
             if (isSolved)
             {
-                _iteration = 0;
-                _cellsToSolve.Clear();
-
-                for (int i = 0; i < _size; i++)
-                {
-                    for (int j = 0; j < _size; j++)
-                    {
-                        _cells[i, j] = new Cell
-                        {
-                            X = i,
-                            Y = j,
-                            Solved = sudoku[i, j] != 0,
-                            Number = sudoku[i, j]
-                        };
-
-                        if (!_cells[i, j].Solved)
-                            _cellsToSolve.Add(_cells[i, j]);
-                    }
-                }
-                isSolved =  SolveNext(0, 0);
+                Initialize(sudoku);
+                isSolved = !SolveNextSecond(0, false);
             }
 
             if (isSolved)
@@ -85,20 +47,39 @@ namespace SudokuLibrary
             return isSolved;
         }
 
-        private bool SolveNext(int index, int deep)
+        private void Initialize(int[,] input)
+        {
+            _cellsToSolve.Clear();
+            _markersBuffer.Clear();
+
+            for (int i = 0; i < _size; i++)
+            {
+                for (int j = 0; j < _size; j++)
+                {
+                    _cells[i, j] = new Cell
+                    {
+                        X = i,
+                        Y = j,
+                        Solved = input[i, j] != 0,
+                        Number = input[i, j]
+                    };
+
+                    if (!_cells[i, j].Solved)
+                        _cellsToSolve.Add(_cells[i, j]);
+                }
+            }
+        }
+
+        private bool SolveNextFirst(int index)
         {
             if (_iteration++ > _maxIterations)
                 return false;
 
             if (index == _cellsToSolve.Count)
-            {
-                _answers = 1;
                 return true;
-            }
 
             var cell = _cellsToSolve[index];
             var markers = GetMarkers(cell);
-            var value = dict.TryGetValue(deep, out _) ? 1 : -1;
 
             cell.Solved = true;
 
@@ -107,26 +88,49 @@ namespace SudokuLibrary
                 if (_iteration > _maxIterations)
                     return false;
 
-                if (value == 1)
-                {
-                    value--;
-                    continue;
-                }
-                else
-                    cell.Number = markers[i];
+                cell.Number = markers[i];
 
-                if (SolveNext(index + 1, deep + 1))
+                if (SolveNextFirst(index + 1))
                 {
-                    if (_answers != 1)
-                        dict.Add(deep, cell.Number);
+                    _solve.Add(index, cell.Number);
                     return true;
                 }
             }
 
-            if (value == 0)
+            cell.Solved = false;
+            return false;
+        }
+
+        private bool SolveNextSecond(int index, bool newPath)
+        {
+            if (index == _cellsToSolve.Count)
+                return newPath;
+
+            var cell = _cellsToSolve[index];
+            var markers = GetMarkers(cell);
+
+            cell.Solved = true;
+
+            for (int i = 0; i < markers.Count; i++)
             {
-                dict.Remove(deep);
-                return SolveNext(index, deep);
+                if (!newPath && markers[i] == _solve[index])
+                {
+                    continue;
+                }
+                else
+                {
+                    cell.Number = markers[i];
+                }
+                if (SolveNextSecond(index + 1, true))
+                {
+                    return true;
+                }
+            }
+
+            if (!newPath)
+            {
+                cell.Number = _solve[index];
+                return SolveNextSecond(index + 1, false);
             }
 
             cell.Solved = false;
@@ -146,33 +150,48 @@ namespace SudokuLibrary
             //                       .Select(x => x.Number)
             //                       .ToList();
 
-            var solvedNumbers = GetAll(cell.X, cell.Y);
 
-            var markers = new List<int>();
+            List<int> markers;
 
-            for (int possibleNumber = 1; possibleNumber <= _size; possibleNumber++)
+            //int key = cell.X * 10 + cell.Y * 1;
+            Console.Write($"Key: {cell.X} {cell.Y} -> ");
+
+            if (!_markersBuffer.TryGetValue(cell, out markers))
             {
-                if (!solvedNumbers.Contains(possibleNumber))
-                    markers.Add(possibleNumber);
+                markers = new();
+
+                var solvedNumbers = GetAll(cell.X, cell.Y);
+
+                for (int possibleNumber = 1; possibleNumber <= _size; possibleNumber++)
+                {
+                    if (!solvedNumbers.Contains(possibleNumber))
+                        markers.Add(possibleNumber);
+                }
+
+                _markersBuffer.Add(cell, markers);
+                Console.Write($"created, ");
             }
 
+            Console.Write($"get");
+
+            Console.WriteLine();
             return markers;
         }
 
         private List<int> GetAll(int x, int y)
         {
             var result = new List<int>();
+
             Cell cell;
 
             for (int i = 0; i < _size; i++)
             {
                 cell = _cells[x, i];
-                if (cell.Solved) result.Add(cell.Number);
+                if (cell.Solved && !result.Contains(cell.Number)) result.Add(cell.Number);
 
                 cell = _cells[i, y];
-                if (cell.Solved) result.Add(cell.Number);
+                if (cell.Solved && !result.Contains(cell.Number)) result.Add(cell.Number);
             }
-
 
             var iBox = x / _boxSize;
             var jBox = y / _boxSize;
@@ -184,7 +203,7 @@ namespace SudokuLibrary
                 for (int j = jBox * _boxSize; j < jBoxMax; j++)
                 {
                     cell = _cells[i, j];
-                    if (cell.Solved) result.Add(cell.Number);
+                    if (cell.Solved && !result.Contains(cell.Number)) result.Add(cell.Number);
                 }
             }
 

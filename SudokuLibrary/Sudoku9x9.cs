@@ -14,10 +14,13 @@ namespace SudokuLibrary
         public Sudoku9x9(Difficult difficult, Algorithms algorithm = Algorithms.BruteForce)
             : base(difficult, algorithm, Size, BoxSize)
         {
-            var square = Size * Size;
+            int square = Size * Size;
+            bool failed = false;
 
             do
             {
+                failed = false;
+
                 Generate();
                 _values.Clear();
 
@@ -29,20 +32,20 @@ namespace SudokuLibrary
                 switch (difficult)
                 {
                     case Difficult.Easy:
-                        ZeroFill(46);
+                        failed = ZeroFill(46);
                         break;
                     case Difficult.Medium:
-                        ZeroFill(51);
+                        failed = ZeroFillWithCheck(51, 20);
                         break;
                     case Difficult.Hard:
-                        ZeroFill(56);
+                        failed = ZeroFillWithCheck(56, 50);
                         break;
                 }
             }
-            while (!TrySolve());
+            while (failed);
         }
 
-        private void ZeroFill(int max)
+        private bool ZeroFill(int max)
         {
             for (int i = 0; i < max; i++)
             {
@@ -55,6 +58,40 @@ namespace SudokuLibrary
 
                 Generated[x, y] = 0;
             }
+
+            return TrySolve();
+        }
+
+        private bool ZeroFillWithCheck(int max, int maxErrors)
+        {
+            int errors = 0;
+
+            for (int i = 0; i < max;)
+            {
+                var index = _random.Next(0, _values.Count);
+                var current = _values[index];
+
+                int x = current / Size;
+                int y = current - x * Size;
+
+                var temp = Generated[x, y];
+                Generated[x, y] = 0;
+
+                if (!TrySolve())
+                {
+                    Generated[x, y] = temp;
+
+                    if (++errors >= maxErrors)
+                        return true;
+                }
+                else
+                {
+                    _values.RemoveAt(index);
+                    i++;
+                }
+            }
+
+            return false;
         }
 
         protected override void Generate()
