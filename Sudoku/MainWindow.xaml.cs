@@ -36,7 +36,7 @@ namespace Sudoku
         {
             InitializeComponent();
 
-            _sudoku = new Sudoku9x9(Difficult.Hard);
+            _sudoku = new Sudoku9x9(Difficult.Medium);
 
             for (int i = 0; i < SUDOKU_GRID.BOX_SIZE; i++)
             {
