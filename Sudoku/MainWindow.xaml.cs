@@ -2,6 +2,7 @@
 using SudokuLibrary;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
@@ -36,7 +37,7 @@ namespace Sudoku
         {
             InitializeComponent();
 
-            _sudoku = new Sudoku9x9(Difficult.Medium);
+            _sudoku = new Sudoku9x9(Difficult.Easy);
 
             for (int i = 0; i < SUDOKU_GRID.BOX_SIZE; i++)
             {
@@ -100,28 +101,25 @@ namespace Sudoku
             textBox.SetValue(Grid.RowProperty, 1);
             textBox.SetValue(Grid.ColumnProperty, 1);
 
-            Label[]? labels = default;
             var value = _sudoku.Generated[row, column].ToString();
 
             if (value != "0")
             {
                 textBox.Text = value;
             }
-            else
+
+            var labelsGrid = new UniformGrid();
+            Label[] labels = new Label[SUDOKU_GRID.SIZE];
+
+            for (int i = 0; i < SUDOKU_GRID.SIZE; i++)
             {
-                var labelsGrid = new UniformGrid();
-                labels = new Label[SUDOKU_GRID.SIZE];
+                var label = new Label();
 
-                for (int i = 0; i < SUDOKU_GRID.SIZE; i++)
-                {
-                    var label = new Label();
-
-                    labels[i] = label;
-                    labelsGrid.Children.Add(label);
-                }
-
-                border.Child = labelsGrid;
+                labels[i] = label;
+                labelsGrid.Children.Add(label);
             }
+
+            border.Child = labelsGrid;
 
             textBox.IsReadOnly = true;
             textBox.PreviewTextInput += TextBox_PreviewTextInput;
@@ -137,6 +135,7 @@ namespace Sudoku
             {
                 Row = row,
                 Column = column,
+                IsSolved = value != "0",
                 TextBox = textBox,
                 Labels = labels
             });
@@ -183,6 +182,28 @@ namespace Sudoku
             }
         }
 
+        private void FillGrid()
+        {
+            foreach (var item in _cellsData)
+            {
+                var data = item.Value;
+                var value = _sudoku.Generated[data.Row, data.Column].ToString();
+
+                data.TextBox.Foreground = Brushes.Black;
+
+                if (value != "0")
+                {
+                    data.TextBox.Text = value;
+                    data.IsSolved = true;
+                }
+                else
+                {
+                    data.TextBox.Text = null; 
+                    data.IsSolved = false;
+                }
+            }
+        }
+
         // Обработчики событий
         // ********************************
         private void TextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
@@ -190,7 +211,7 @@ namespace Sudoku
             var data = _cellsData[((TextBox)sender).GetHashCode()];
 
             // Если значение сгенерировано или ввод не число, то пропускаем
-            if (data.Labels == null || !int.TryParse(e.Text, out _))
+            if (data.IsSolved || !int.TryParse(e.Text, out _))
             {
                 return;
             }
@@ -303,7 +324,6 @@ namespace Sudoku
                 else
                 {
                     data.TextBox.Text = e.Text;
-                    data.Labels = null;
                 }
 
                 return;
@@ -318,8 +338,13 @@ namespace Sudoku
             else
             {
                 data.TextBox.Foreground = Brushes.Black;
-                data.Labels = null;
                 Keyboard.ClearFocus();
+                data.IsSolved = true;
+
+                if (_cellsData.All(i => i.Value.IsSolved))
+                {
+                    MessageBox.Show("Судоку решено!");
+                }
             }
 
             data.TextBox.Text = e.Text;
@@ -425,34 +450,52 @@ namespace Sudoku
             ClearErrorCells(true, null);
         }
 
-        private void Menu_Easy_Click(object sender, RoutedEventArgs e)
+        private async void Menu_Easy_Click(object sender, RoutedEventArgs e)
         {
-            //solver = new Solver9x9(Difficult.Easy);
-            //int i = 0;
-            //int j = -1;
+            Mouse.OverrideCursor = Cursors.Wait;
 
-            //foreach (var item in _cellsData)
-            //{
-            //    i = j++ - SUDOKU_GRID.SIZE == 0 ? i + 1 : i;
+            await Task.Run(() =>
+            {
+                _sudoku = new Sudoku9x9(Difficult.Easy);
+            });
 
-            //    var data = item.Value;
-            //    var value = solver.Generated[i, j].ToString();
+            FillGrid();
 
-            //    if (value != "0")
-            //    {
-            //        data.TextBox.Text = value;
-            //    }
-            //    else
-            //    {
-            //        data.TextBox
-            //    }
-            //    // Если введены неверные ответы, то очищаем ячейки
-            //    if (data.TextBox.Text != solver[data.Row, data.Column].ToString())
-            //    {
-            //        data.TextBox.Text = null;
-            //        data.TextBox.Foreground = Brushes.Black;
-            //    }
-            //}
+            Mouse.OverrideCursor = null;
+        }
+
+        private async void Menu_Medium_Click(object sender, RoutedEventArgs e)
+        {
+            Mouse.OverrideCursor = Cursors.Wait;
+
+            await Task.Run(() =>
+            {
+                _sudoku = new Sudoku9x9(Difficult.Medium);
+            });
+
+            FillGrid();
+
+            Mouse.OverrideCursor = null;
+        }
+
+        private async void Menu_Hard_Click(object sender, RoutedEventArgs e)
+        {
+            Mouse.OverrideCursor = Cursors.Wait;
+
+            await Task.Run(() =>
+            {
+                _sudoku = new Sudoku9x9(Difficult.Hard);
+            });
+
+            FillGrid();
+            Mouse.OverrideCursor = null;
+        }
+
+        private async void Menu_Dev_Click(object sender, RoutedEventArgs e)
+        {
+            _sudoku = new Sudoku9x9(Difficult.Dev);
+
+            FillGrid();
         }
         // ********************************
     }

@@ -4,65 +4,80 @@ using SudokuLibrary;
 using SudokuLibrary.Base;
 using System.Diagnostics;
 
-//Stopwatch stopwatch1 = Stopwatch.StartNew();
-//for (int i = 0; i < 300; i++)
+//using var writer1 = new StreamWriter("test1.txt");
+//using var writer2 = new StreamWriter("test2.txt");
+
+//for (int i = 50; i <= 100; i++)
 //{
-//    Stopwatch stopwatch = Stopwatch.StartNew();
-//    var s = new Sudoku9x9(Difficult.Hard, Algorithms.BruteForce);
-//    stopwatch.Stop();
+//    Console.WriteLine(i);
+//    Stopwatch stopwatch1 = Stopwatch.StartNew();
 
-//    Console.WriteLine($"{stopwatch.ElapsedMilliseconds * 1e-3:f2}");
+//    for (int j = 0; j < 10; j++)
+//    {
+//        var s = new Sudoku9x9(Difficult.Hard, Algorithms.BruteForce, i);
+//    }
+//    stopwatch1.Stop();
+
+//    //writer1.WriteLine($"{i}");
+//    //writer2.WriteLine($"{stopwatch1.ElapsedMilliseconds * 1e-3:f3}");
+//    Console.WriteLine($"Total: {stopwatch1.ElapsedMilliseconds * 1e-3:f2} s");
 //}
-//stopwatch1.Stop();
-//Console.WriteLine($"Total: {stopwatch1.ElapsedMilliseconds * 1e-3:f2} s");
+//Console.WriteLine("done");
 
-//Stopwatch stopwatch = Stopwatch.StartNew();
-//var s = new Sudoku9x9(Difficult.Easy, Algorithms.BruteForce);
-//stopwatch.Stop();
-
-//Console.WriteLine($"{stopwatch.ElapsedMilliseconds*1e-3:f2} s");
-//Print(s.Generated);
-//Print(s.Solved);
+Stopwatch stopwatch = Stopwatch.StartNew();
+for (int j = 0; j < 100; j++)
+{
+    Stopwatch stopwatch1 = Stopwatch.StartNew();
+    var s1 = new Sudoku9x9(Difficult.Hard, Algorithms.BruteForce);
+    stopwatch1.Stop();
+    Console.WriteLine($"{stopwatch1.ElapsedMilliseconds * 1e-3:f2} s");
+}
+stopwatch.Stop();
+Console.WriteLine($"Total: {stopwatch.ElapsedMilliseconds * 1e-3:f2} s");
 
 //BenchmarkRunner.Run<Test>();
 
-var a = new BruteForce(9, 3);
-var b = new int[9, 9];
-Console.WriteLine(a.TrySolve(
-    new int[,]
-{
-            // ne norm
-            //{ 0, 0, 8, 0, 0, 0, 0, 3, 0 },
-            //{ 7, 4, 0, 0, 6, 0, 0, 0, 0 },
-            //{ 0, 0, 9, 0, 5, 0, 0, 4, 1 },
-            //{ 9, 0, 0, 0, 0, 0, 0, 7, 0 },
-            //{ 8, 0, 0, 0, 7, 0, 0, 0, 3 },
-            //{ 0, 0, 4, 0, 0, 0, 0, 0, 5 },
-            //{ 2, 0, 5, 4, 0, 7, 0, 9, 6 },
-            //{ 0, 0, 0, 0, 0, 0, 5, 0, 0 },
-            //{ 0, 9, 0, 0, 0, 0, 0, 1, 0 },
-            // norm
-            { 0, 0, 0, 0, 0, 0, 4, 5, 2 },
-            { 8, 9, 0, 0, 0, 0, 3, 0, 0 },
-            { 1, 0, 0, 0, 0, 0, 8, 0, 0 },
-            { 0, 0, 8, 5, 0, 4, 0, 0, 0 },
-            { 0, 5, 0, 0, 0, 0, 0, 0, 0 },
-            { 0, 4, 0, 0, 0, 2, 0, 0, 3 },
-            { 0, 0, 0, 0, 3, 0, 0, 2, 0 },
-            { 0, 0, 0, 8, 0, 0, 0, 0, 6 },
-            { 7, 0, 6, 0, 9, 0, 0, 0, 0 },
-            // norm2
-            //{ 0, 0, 0, 0, 5, 7, 0, 0, 8 },
-            //{ 0, 0, 6, 0, 0, 0, 0, 0, 0 },
-            //{ 5, 0, 9, 0, 2, 0, 0, 7, 0 },
-            //{ 0, 8, 0, 0, 1, 0, 0, 0, 0 },
-            //{ 1, 0, 5, 9, 0, 0, 0, 0, 3 },
-            //{ 0, 6, 0, 0, 0, 0, 0, 5, 0 },
-            //{ 2, 0, 7, 0, 9, 0, 0, 8, 0 },
-            //{ 0, 0, 0, 3, 0, 0, 4, 0, 0 },
-            //{ 0, 1, 0, 0, 0, 0, 0, 0, 0 },
-}, b));
-Print(b);
+var s = new Sudoku9x9(Difficult.Hard, Algorithms.BruteForce);
+
+//var a = new BruteForce(9, 3);
+//var b = new int[9, 9];
+//Console.WriteLine(a.TrySolve(
+//    new int[,]
+//{
+//            // ne norm
+//            //{ 0, 0, 8, 0, 0, 0, 0, 3, 0 },
+//            //{ 7, 4, 0, 0, 6, 0, 0, 0, 0 },
+//            //{ 0, 0, 9, 0, 5, 0, 0, 4, 1 },
+//            //{ 9, 0, 0, 0, 0, 0, 0, 7, 0 },
+//            //{ 8, 0, 0, 0, 7, 0, 0, 0, 3 },
+//            //{ 0, 0, 4, 0, 0, 0, 0, 0, 5 },
+//            //{ 2, 0, 5, 4, 0, 7, 0, 9, 6 },
+//            //{ 0, 0, 0, 0, 0, 0, 5, 0, 0 },
+//            //{ 0, 9, 0, 0, 0, 0, 0, 1, 0 },
+//            // norm
+//            { 0, 0, 0, 0, 0, 0, 4, 5, 2 },
+//            { 8, 9, 0, 0, 0, 0, 3, 0, 0 },
+//            { 1, 0, 0, 0, 0, 0, 8, 0, 0 },
+//            { 0, 0, 8, 5, 0, 4, 0, 0, 0 },
+//            { 0, 5, 0, 0, 0, 0, 0, 0, 0 },
+//            { 0, 4, 0, 0, 0, 2, 0, 0, 3 },
+//            { 0, 0, 0, 0, 3, 0, 0, 2, 0 },
+//            { 0, 0, 0, 8, 0, 0, 0, 0, 6 },
+//            { 7, 0, 6, 0, 9, 0, 0, 0, 0 },
+//            // norm2
+//            //{ 0, 0, 0, 0, 5, 7, 0, 0, 8 },
+//            //{ 0, 0, 6, 0, 0, 0, 0, 0, 0 },
+//            //{ 5, 0, 9, 0, 2, 0, 0, 7, 0 },
+//            //{ 0, 8, 0, 0, 1, 0, 0, 0, 0 },
+//            //{ 1, 0, 5, 9, 0, 0, 0, 0, 3 },
+//            //{ 0, 6, 0, 0, 0, 0, 0, 5, 0 },
+//            //{ 2, 0, 7, 0, 9, 0, 0, 8, 0 },
+//            //{ 0, 0, 0, 3, 0, 0, 4, 0, 0 },
+//            //{ 0, 1, 0, 0, 0, 0, 0, 0, 0 },
+//}, b));
+//
+Print(s.Generated);
+Print(s.Solved);
 
 void Print(int[,] s)
 {

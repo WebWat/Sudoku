@@ -11,7 +11,7 @@ namespace SudokuLibrary
         private readonly List<int> _values = new();
         private const int _iterations = 10;
 
-        public Sudoku9x9(Difficult difficult, Algorithms algorithm = Algorithms.BruteForce)
+        public Sudoku9x9(Difficult difficult,  Algorithms algorithm = Algorithms.BruteForce)
             : base(difficult, algorithm, Size, BoxSize)
         {
             int square = Size * Size;
@@ -31,6 +31,9 @@ namespace SudokuLibrary
 
                 switch (difficult)
                 {
+                    case Difficult.Dev:
+                        failed = ZeroFill(5);
+                        break;
                     case Difficult.Easy:
                         failed = ZeroFill(46);
                         break;
@@ -38,7 +41,7 @@ namespace SudokuLibrary
                         failed = ZeroFillWithCheck(51, 20);
                         break;
                     case Difficult.Hard:
-                        failed = ZeroFillWithCheck(56, 50);
+                        failed = ZeroFillWithCheck(56, 60);
                         break;
                 }
             }
@@ -59,7 +62,7 @@ namespace SudokuLibrary
                 Generated[x, y] = 0;
             }
 
-            return TrySolve();
+            return !TrySolve();
         }
 
         private bool ZeroFillWithCheck(int max, int maxErrors)

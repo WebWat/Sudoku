@@ -6,10 +6,13 @@
         public int[,] Solved;
 
         protected readonly Algorithm _algorithm;
+        public readonly Difficult Difficult;
 
         public Sudoku_x_(Difficult difficult, Algorithms algorithm, int size, int boxSize)
         {
             Solved = new int[size, size];
+
+            Difficult = difficult;
 
             switch (algorithm)
             {

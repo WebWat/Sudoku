@@ -45,8 +45,9 @@
         <Menu Height="20" Grid.ColumnSpan="6">
             <MenuItem Header="Новая игра">
                 <MenuItem Header="Легкий уровень" Click="Menu_Easy_Click"></MenuItem>
-                <MenuItem Header="Средний уровень"></MenuItem>
-                <MenuItem Header="Сложный уровень"></MenuItem>
+                <MenuItem Header="Средний уровень" Click="Menu_Medium_Click"></MenuItem>
+                <MenuItem Header="Сложный уровень" Click="Menu_Hard_Click"></MenuItem>
+                <MenuItem Header="Dev" Click="Menu_Dev_Click"></MenuItem>
             </MenuItem>
             <MenuItem Header="Таблица рекордов"></MenuItem>
         </Menu>
