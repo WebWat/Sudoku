@@ -20,6 +20,7 @@
             <Style TargetType="TextBox">
                 <Setter Property="BorderThickness" Value="0"></Setter>
                 <Setter Property="FontSize" Value="28"></Setter>
+                <Setter Property="FontWeight" Value="SemiBold"></Setter>
                 <Setter Property="VerticalContentAlignment" Value="Center"></Setter>
                 <Setter Property="HorizontalContentAlignment" Value="Center"></Setter>
             </Style>
@@ -28,10 +29,11 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="20"></RowDefinition>
             <RowDefinition Height="10"></RowDefinition>
-            <RowDefinition></RowDefinition>
-            <RowDefinition></RowDefinition>
-            <RowDefinition></RowDefinition>
+            <RowDefinition Height="150"></RowDefinition>
+            <RowDefinition Height="150"></RowDefinition>
+            <RowDefinition Height="150"></RowDefinition>
             <RowDefinition Height="10"></RowDefinition>
+            <RowDefinition></RowDefinition>
             <RowDefinition></RowDefinition>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -51,8 +53,9 @@
             </MenuItem>
             <MenuItem Header="Таблица рекордов"></MenuItem>
         </Menu>
-
-        <ToggleButton x:Name="NoteMode" Content="Режим заметок" Grid.Column="1" Grid.Row="6" Checked="NoteMode_Checked" Unchecked="NoteMode_Unchecked"></ToggleButton>
-        <ToggleButton x:Name="ErrorPreventionMode"  Content="Режим предотвращения ошибок" Grid.Column="2" Grid.Row="6" Checked="ErrorPreventionMode_Checked" Unchecked="ErrorPreventionMode_Unchecked"></ToggleButton>
+        <Label Grid.Column="2" Grid.Row="6" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontSize="18" x:Name="Time">00:00</Label>
+        <ToggleButton x:Name="NoteMode" Content="Режим заметок" Grid.Column="1" Grid.Row="7" Checked="NoteMode_Checked" Unchecked="NoteMode_Unchecked"></ToggleButton>
+        <ToggleButton x:Name="ErrorPreventionMode"  Content="Режим предотвращения ошибок" Grid.Column="2" Grid.Row="7" Checked="ErrorPreventionMode_Checked" Unchecked="ErrorPreventionMode_Unchecked"></ToggleButton>
+        <ToggleButton Content="Приостановить" Grid.Column="3" Grid.Row="7" Checked="StopSudoku_Checked" Unchecked="StopSudoku_Unchecked"></ToggleButton>
     </Grid>
 </Window>

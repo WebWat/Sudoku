@@ -1,13 +1,16 @@
 ﻿using Sudoku.Necessary;
 using SudokuLibrary;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace Sudoku
 {
@@ -24,6 +27,10 @@ namespace Sudoku
         // Решение судоку
         private Sudoku9x9 _sudoku;
 
+        private DispatcherTimer _dispatcherTimer;
+        private int _minutes;
+        private int _seconds;
+
         // Конфликтные ячейки для выделения в режиме "Предотвращение ошибок"
         private TextBox? _rowError;
         private TextBox? _columnError;
@@ -31,7 +38,7 @@ namespace Sudoku
         private TextBox? _currentError;
 
         private readonly SolidColorBrush _focusBackgroundColor = new(Color.FromRgb(190, 230, 253));
-        private readonly SolidColorBrush _errorForegroundColor = new(Color.FromRgb(192, 38, 38));
+        private readonly SolidColorBrush _errorForegroundColor = new(Colors.Red);//new(Color.FromRgb(192, 38, 38));
 
         public MainWindow()
         {
@@ -45,7 +52,12 @@ namespace Sudoku
                 {
                     CreateBox(i + _rowOffset, j + _columnOffset);
                 }
-            }       
+            }
+
+            _dispatcherTimer = new();
+            _dispatcherTimer.Tick += new EventHandler(DispatcherTimer_Tick);
+            _dispatcherTimer.Interval = TimeSpan.FromSeconds(1);
+            _dispatcherTimer.Start();
         }
 
         // Метод для создания UniformGrid размером 3x3
@@ -204,8 +216,26 @@ namespace Sudoku
             }
         }
 
+        private void ResetTimer()
+        {
+            Time.Content = "00:00";
+            _minutes = 0;
+            _seconds = 0;
+        }
+
         // Обработчики событий
         // ********************************
+        private void DispatcherTimer_Tick(object sender, EventArgs e)
+        {
+            Time.Content = $"{_minutes:d2}:{_seconds++:d2}";
+
+            if (_seconds > 59)
+            {
+                _minutes++;
+                _seconds = 0;
+            }
+        }
+
         private void TextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             var data = _cellsData[((TextBox)sender).GetHashCode()];
@@ -331,6 +361,7 @@ namespace Sudoku
             // Если ответ неверный, то выделяем цифру красным
             if (e.Text != answer)
             {
+                //data.TextBox.FontWeight = FontWeights.ExtraBold;
                 data.TextBox.Foreground = _errorForegroundColor;
             }
             // Иначе фиксируем правильный ответ
@@ -342,6 +373,7 @@ namespace Sudoku
 
                 if (_cellsData.All(i => i.Value.IsSolved))
                 {
+                    _dispatcherTimer.Stop();
                     MessageBox.Show("Судоку решено!");
                 }
             }
@@ -351,6 +383,7 @@ namespace Sudoku
 
         private void TextBox_PreviewKeyDown(object sender, KeyEventArgs e)
         {
+            var textbox = (TextBox)sender;
             switch (e.Key)
             {
                 case Key.Space:
@@ -358,7 +391,55 @@ namespace Sudoku
                     break;
                 case Key.Back:
                 case Key.Delete:
-                    ((TextBox)sender).Text = null;
+                    textbox.Text = null;
+                    break;
+                case Key.Down:
+                    var current = _cellsData[textbox.GetHashCode()];
+
+                    if (current.Row != SUDOKU_GRID.SIZE - 1)
+                    {
+                        var next = _cellsData.FirstOrDefault(i =>
+                        i.Value.Column == current.Column &&
+                        i.Value.Row == current.Row + 1).Value;
+
+                        next?.TextBox.Focus();
+                    }
+                    break;
+                case Key.Up:
+                    current = _cellsData[textbox.GetHashCode()];
+
+                    if (current.Row != 0)
+                    {
+                        var next = _cellsData.FirstOrDefault(i =>
+                        i.Value.Column == current.Column &&
+                        i.Value.Row == current.Row - 1).Value;
+
+                        next?.TextBox.Focus();
+                    }
+                    break;
+                case Key.Left:
+                    current = _cellsData[textbox.GetHashCode()];
+
+                    if (current.Column != 0)
+                    {
+                        var next = _cellsData.FirstOrDefault(i =>
+                        i.Value.Column == current.Column - 1 &&
+                        i.Value.Row == current.Row).Value;
+
+                        next?.TextBox.Focus();
+                    }
+                    break;
+                case Key.Right:
+                    current = _cellsData[textbox.GetHashCode()];
+
+                    if (current.Column != SUDOKU_GRID.SIZE - 1)
+                    {
+                        var next = _cellsData.FirstOrDefault(i =>
+                        i.Value.Column == current.Column + 1 &&
+                        i.Value.Row == current.Row).Value;
+
+                        next?.TextBox.Focus();
+                    }
                     break;
                 default:
                     break;
@@ -408,7 +489,6 @@ namespace Sudoku
 
         private void NoteMode_Unchecked(object sender, RoutedEventArgs e)
         {
-
             foreach (var item in _cellsData)
             {
                 var data = item.Value;
@@ -449,8 +529,47 @@ namespace Sudoku
             ClearErrorCells(true, null);
         }
 
+        private void StopSudoku_Checked(object sender, RoutedEventArgs e)
+        {
+            _dispatcherTimer.Stop();
+
+            foreach (var item in BaseGrid.Children)
+            {
+                if (item is Border border)
+                {
+                    border.IsEnabled = false;
+                    border.Child.Opacity = 0;
+                }
+                else if (item is Menu menu)
+                {
+                    menu.IsEnabled = false;
+                }
+            }
+        }
+
+        private void StopSudoku_Unchecked(object sender, RoutedEventArgs e)
+        {
+            foreach (var item in BaseGrid.Children)
+            {
+                if (item is Border border)
+                {
+                    border.IsEnabled = true;
+                    border.Child.Opacity = 1;
+                }
+                else if (item is Menu menu)
+                {
+                    menu.IsEnabled = true;
+                }
+            }
+
+            _dispatcherTimer.Start();
+        }
+
         private async void Menu_Easy_Click(object sender, RoutedEventArgs e)
         {
+            ResetTimer();
+            _dispatcherTimer.Stop();
+
             Mouse.OverrideCursor = Cursors.Wait;
 
             await Task.Run(() =>
@@ -461,10 +580,14 @@ namespace Sudoku
             FillGrid();
 
             Mouse.OverrideCursor = null;
+            _dispatcherTimer.Start();
         }
 
         private async void Menu_Medium_Click(object sender, RoutedEventArgs e)
         {
+            ResetTimer();
+            _dispatcherTimer.Stop();
+
             Mouse.OverrideCursor = Cursors.Wait;
 
             await Task.Run(() =>
@@ -475,10 +598,14 @@ namespace Sudoku
             FillGrid();
 
             Mouse.OverrideCursor = null;
+            _dispatcherTimer.Start();
         }
 
         private async void Menu_Hard_Click(object sender, RoutedEventArgs e)
         {
+            ResetTimer();
+            _dispatcherTimer.Stop();
+
             Mouse.OverrideCursor = Cursors.Wait;
 
             await Task.Run(() =>
@@ -487,14 +614,21 @@ namespace Sudoku
             });
 
             FillGrid();
+
             Mouse.OverrideCursor = null;
+            _dispatcherTimer.Start();
         }
 
-        private async void Menu_Dev_Click(object sender, RoutedEventArgs e)
+        private void Menu_Dev_Click(object sender, RoutedEventArgs e)
         {
+            ResetTimer();
+            _dispatcherTimer.Stop();
+
             _sudoku = new Sudoku9x9(Difficult.Dev);
 
             FillGrid();
+
+            _dispatcherTimer.Start();
         }
         // ********************************
     }

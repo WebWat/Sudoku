@@ -9,7 +9,7 @@ namespace SudokuLibrary
 
         private int _iteration = 0;
         private readonly int _maxIterations;
-        private Dictionary<int, int> _solve = new();
+        private readonly Dictionary<int, int> _solve = new();
 
         public BruteForce(int size, int boxSize, int maxIterations = 15_000) : base(size, boxSize)
         {
