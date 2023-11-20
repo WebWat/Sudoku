@@ -11,88 +11,91 @@ namespace SudokuLibrary
         private readonly List<int> _values = new();
         private const int _iterations = 10;
 
-        public Sudoku9x9(Difficult difficult,  Algorithms algorithm = Algorithms.BruteForce)
+        public Sudoku9x9(Difficult difficult, Algorithms algorithm = Algorithms.BruteForce)
             : base(difficult, algorithm, Size, BoxSize)
         {
             int square = Size * Size;
-            bool failed = false;
+            bool failed;
+            int temp = 0;
+            int index = 0;
+
+            for (int i = 0; i < square; i++)
+            {
+                _values.Add(i);
+                index = _random.Next(i + 1);
+                temp = _values[index];
+                _values[index] = i;
+                _values[i] = temp;
+            }
 
             do
             {
                 failed = false;
 
                 Generate();
-                _values.Clear();
-
-                for (int i = 0; i < square; i++)
-                {
-                    _values.Add(i);
-                }
 
                 switch (difficult)
                 {
                     case Difficult.Dev:
-                        failed = ZeroFill(5);
+                        failed = ZeroFillWithCheck(10);
                         break;
                     case Difficult.Easy:
-                        failed = ZeroFill(46);
+                        failed = ZeroFillWithCheck(46);
                         break;
                     case Difficult.Medium:
-                        failed = ZeroFillWithCheck(51, 20);
+                        failed = ZeroFillWithCheck(51);
                         break;
                     case Difficult.Hard:
-                        failed = ZeroFillWithCheck(56, 60);
+                        failed = ZeroFillWithCheck(56);
                         break;
                 }
             }
             while (failed);
         }
 
-        private bool ZeroFill(int max)
+        private bool ZeroFillWithCheck(int max)
         {
-            for (int i = 0; i < max; i++)
+            int current = 0;
+            int i = 0;
+            int x = 0;
+            int y = 0;
+            int temp = 0;
+            int nextIndex = 0;
+            int offset = 1;
+
+            while (i < max)
             {
-                var index = _random.Next(0, _values.Count);
-                var current = _values[index];
-                _values.RemoveAt(index);
+                current = _values[i];
 
-                int x = current / Size;
-                int y = current - x * Size;
+                x = current / Size;
+                y = current - x * Size;
 
-                Generated[x, y] = 0;
-            }
-
-            return !TrySolve();
-        }
-
-        private bool ZeroFillWithCheck(int max, int maxErrors)
-        {
-            int errors = 0;
-
-            for (int i = 0; i < max;)
-            {
-                var index = _random.Next(0, _values.Count);
-                var current = _values[index];
-
-                int x = current / Size;
-                int y = current - x * Size;
-
-                var temp = Generated[x, y];
+                temp = Generated[x, y];
                 Generated[x, y] = 0;
 
                 if (!TrySolve())
                 {
                     Generated[x, y] = temp;
 
-                    if (++errors >= maxErrors)
+                    temp = _values[i];
+                    nextIndex = i + offset++;
+
+                    _values[i] = _values[nextIndex];
+                    _values[nextIndex] = temp;
+
+                    if (nextIndex + 1 == _values.Count)
+                    {
+                        //Console.WriteLine("failed");
                         return true;
+                    }
                 }
                 else
                 {
-                    _values.RemoveAt(index);
                     i++;
+                    offset = 1;
                 }
             }
+
 
             return false;
         }

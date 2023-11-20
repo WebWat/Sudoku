@@ -221,7 +221,6 @@ namespace Sudoku
 
             // Отклоняем ввод
             e.Handled = true;
-
             // Если включен режим "Создание заметок"
             if (NoteMode.IsChecked == true)
             {

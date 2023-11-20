@@ -25,19 +25,20 @@ using System.Diagnostics;
 //Console.WriteLine("done");
 
 Stopwatch stopwatch = Stopwatch.StartNew();
-for (int j = 0; j < 100; j++)
+for (int j = 0; j < 1; j++)
 {
     Stopwatch stopwatch1 = Stopwatch.StartNew();
-    var s1 = new Sudoku9x9(Difficult.Hard, Algorithms.BruteForce);
+    var s1 = new Sudoku9x9(Difficult.Hard);
     stopwatch1.Stop();
-    Console.WriteLine($"{stopwatch1.ElapsedMilliseconds * 1e-3:f2} s");
+    Console.WriteLine($"{stopwatch1.ElapsedMilliseconds * 1e-3:f2}");
+    Print(s1.Generated);
+    Print(s1.Solved);
 }
 stopwatch.Stop();
 Console.WriteLine($"Total: {stopwatch.ElapsedMilliseconds * 1e-3:f2} s");
 
 //BenchmarkRunner.Run<Test>();
 
-var s = new Sudoku9x9(Difficult.Hard, Algorithms.BruteForce);
 
 //var a = new BruteForce(9, 3);
 //var b = new int[9, 9];
@@ -76,8 +77,6 @@ var s = new Sudoku9x9(Difficult.Hard, Algorithms.BruteForce);
 //            //{ 0, 1, 0, 0, 0, 0, 0, 0, 0 },
 //}, b));
 //
-Print(s.Generated);
-Print(s.Solved);
 
 void Print(int[,] s)
 {

@@ -5,16 +5,15 @@ namespace SudokuLibrary
     public class BruteForce : Algorithm
     {
         private readonly Cell[,] _cells;
-        private readonly Cell[,] _cells2;
         private readonly List<Cell> _cellsToSolve = new();
-        private readonly List<Cell> _cellsToSolve2 = new();
 
         private int _iteration = 0;
-        private const int _maxIterations = 15_000;
+        private readonly int _maxIterations;
         private Dictionary<int, int> _solve = new();
 
-        public BruteForce(int size, int boxSize) : base(size, boxSize)
+        public BruteForce(int size, int boxSize, int maxIterations = 15_000) : base(size, boxSize)
         {
+            _maxIterations = maxIterations;
             _cells = new Cell[size, size];
         }
 
@@ -24,7 +23,6 @@ namespace SudokuLibrary
             _solve.Clear();
             Initialize(sudoku);
             var isSolved = SolveNextFirst(0);
-
 
             if (isSolved)
             {
@@ -62,19 +60,9 @@ namespace SudokuLibrary
                         Number = input[i, j]
                     };
 
-                    //_cells2[i, j] = new Cell
-                    //{
-                    //    X = i,
-                    //    Y = j,
-                    //    Solved = input[i, j] != 0,
-                    //    Number = input[i, j]
-                    //};
-
-
                     if (!_cells[i, j].Solved)
                     {
                         _cellsToSolve.Add(_cells[i, j]);
-                        //_cellsToSolve2.Add(_cells2[i, j]);
                     }
                 }
             }
