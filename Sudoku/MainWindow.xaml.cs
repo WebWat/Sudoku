@@ -55,7 +55,7 @@ namespace Sudoku
             }
 
             _dispatcherTimer = new();
-            _dispatcherTimer.Tick += new EventHandler(DispatcherTimer_Tick);
+            _dispatcherTimer.Tick += new EventHandler(DispatcherTimer_Tick!);
             _dispatcherTimer.Interval = TimeSpan.FromSeconds(1);
             _dispatcherTimer.Start();
         }
@@ -375,6 +375,16 @@ namespace Sudoku
                 {
                     _dispatcherTimer.Stop();
                     MessageBox.Show("Судоку решено!");
+
+                    RecordTable.Data.Add(
+                        new RecordInformation
+                        {
+                            Number = RecordTable.Data.Count + 1,
+                            DateTime = DateTime.Now,
+                            Difficult = _sudoku.Difficult,
+                            Minutes = _minutes,
+                            Seconds = _seconds
+                        });
                 }
             }
 
@@ -399,8 +409,8 @@ namespace Sudoku
                     if (current.Row != SUDOKU_GRID.SIZE - 1)
                     {
                         var next = _cellsData.FirstOrDefault(i =>
-                        i.Value.Column == current.Column &&
-                        i.Value.Row == current.Row + 1).Value;
+                            i.Value.Column == current.Column &&
+                            i.Value.Row == current.Row + 1).Value;
 
                         next?.TextBox.Focus();
                     }
@@ -411,8 +421,8 @@ namespace Sudoku
                     if (current.Row != 0)
                     {
                         var next = _cellsData.FirstOrDefault(i =>
-                        i.Value.Column == current.Column &&
-                        i.Value.Row == current.Row - 1).Value;
+                            i.Value.Column == current.Column &&
+                            i.Value.Row == current.Row - 1).Value;
 
                         next?.TextBox.Focus();
                     }
@@ -423,8 +433,8 @@ namespace Sudoku
                     if (current.Column != 0)
                     {
                         var next = _cellsData.FirstOrDefault(i =>
-                        i.Value.Column == current.Column - 1 &&
-                        i.Value.Row == current.Row).Value;
+                            i.Value.Column == current.Column - 1 &&
+                            i.Value.Row == current.Row).Value;
 
                         next?.TextBox.Focus();
                     }
@@ -435,8 +445,8 @@ namespace Sudoku
                     if (current.Column != SUDOKU_GRID.SIZE - 1)
                     {
                         var next = _cellsData.FirstOrDefault(i =>
-                        i.Value.Column == current.Column + 1 &&
-                        i.Value.Row == current.Row).Value;
+                            i.Value.Column == current.Column + 1 &&
+                            i.Value.Row == current.Row).Value;
 
                         next?.TextBox.Focus();
                     }

@@ -84,10 +84,7 @@ namespace SudokuLibrary
                     _values[nextIndex] = temp;
 
                     if (nextIndex + 1 == _values.Count)
-                    {
-                        //Console.WriteLine("failed");
                         return true;
-                    }
                 }
                 else
                 {
