@@ -1,7 +1,7 @@
 ﻿using SudokuLibrary;
 using System;
 
-namespace Sudoku.Necessary
+namespace UI.Necessary
 {
     internal class RecordInformation
     {

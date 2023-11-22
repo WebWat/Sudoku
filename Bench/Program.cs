@@ -38,7 +38,7 @@ using SudokuLibrary.Sudoku;
 //stopwatch.Stop();
 //Console.WriteLine($"Total: {stopwatch.ElapsedMilliseconds * 1e-3:f2} s");
 
-BenchmarkRunner.Run<Sudoku>();
+//BenchmarkRunner.Run<Sudoku>();
 
 
 //var a = new BruteForce(9, 3);

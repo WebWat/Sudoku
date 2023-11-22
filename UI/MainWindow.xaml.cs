@@ -1,4 +1,4 @@
-﻿using Sudoku.Necessary;
+﻿using UI.Necessary;
 using SudokuLibrary;
 using SudokuLibrary.Sudoku;
 using System;
@@ -12,7 +12,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Threading;
 
-namespace Sudoku
+namespace UI
 {
     public partial class MainWindow : Window
     {

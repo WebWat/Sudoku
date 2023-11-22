@@ -2,7 +2,7 @@
 using System.IO;
 using System.Text.Json;
 
-namespace Sudoku.Necessary
+namespace UI.Necessary
 {
     internal static class RecordTable
     {

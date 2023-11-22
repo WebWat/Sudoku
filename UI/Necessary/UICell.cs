@@ -1,6 +1,6 @@
 ﻿using System.Windows.Controls;
 
-namespace Sudoku.Necessary
+namespace UI.Necessary
 {
     internal class UICell
     {
