@@ -85,6 +85,7 @@
             <TextBlock TextAlignment="Center">Режим предотвращения<LineBreak/>ошибок</TextBlock>
         </ToggleButton>
         <ToggleButton 
+            x:Name="Timer"
             Grid.Row="7" 
             Grid.Column="3" 
             Checked="StopSudoku_Checked" 

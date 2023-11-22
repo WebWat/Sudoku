@@ -26,13 +26,13 @@ namespace UI
 
             Table = new();
             RecordTable.Read();
-            RecordTable.Data.OrderBy(i => i.Minutes * i.Seconds);
+            var data = RecordTable.GetList().OrderBy(i => (i.Minutes == 0 ? 1 : i.Minutes) * i.Seconds).ToList();
 
             RecordInformation temp;
 
-            for (int i = 0; i < RecordTable.Data.Count; i++)
+            for (int i = 0; i < data.Count; i++)
             {
-                temp = RecordTable.Data[i];
+                temp = data[i];
 
                 Table.Add(new Info
                 {

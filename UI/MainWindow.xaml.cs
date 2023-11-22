@@ -200,6 +200,10 @@ namespace UI
 
         private void FillGrid()
         {
+            NoteMode.IsEnabled = true;
+            ErrorPreventionMode.IsEnabled = true;
+            Timer.IsEnabled = true;
+
             NoteMode.IsChecked = false;
             ErrorPreventionMode.IsChecked = false;
 
@@ -245,9 +249,9 @@ namespace UI
             if (_cellsData.All(i => i.Value.IsSolved))
             {
                 _dispatcherTimer.Stop();
-                MessageBox.Show("Судоку решено!");
+                MessageBox.Show(":D", "Судоку решено!");
 
-                RecordTable.Data.Add(
+                RecordTable.Add(
                     new RecordInformation
                     {
                         DateTimeReceive = DateTime.Now,
@@ -255,6 +259,10 @@ namespace UI
                         Minutes = _minutes,
                         Seconds = _seconds
                     });
+
+                NoteMode.IsEnabled = false;
+                ErrorPreventionMode.IsEnabled = false;
+                Timer.IsEnabled = false;
             }
         }
 
@@ -262,7 +270,7 @@ namespace UI
         // ********************************
         private void DispatcherTimer_Tick(object sender, EventArgs e)
         {
-            Time.Content = $"{_minutes:d2}:{_seconds++:d2}";
+            Time.Content = $"{_minutes:d2}:{++_seconds:d2}";
 
             if (_seconds > 59)
             {
@@ -396,6 +404,8 @@ namespace UI
                 return;
             }
 
+            data.TextBox.Text = e.Text;
+
             // Если ответ неверный, то выделяем цифру красным
             if (e.Text != answer)
             {
@@ -410,8 +420,6 @@ namespace UI
 
                 CheckWin();
             }
-
-            data.TextBox.Text = e.Text;
         }
 
         private void TextBox_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -522,6 +530,11 @@ namespace UI
 
         private void NoteMode_Unchecked(object sender, RoutedEventArgs e)
         {
+            if (ErrorPreventionMode.IsChecked == true)
+            {
+                return;
+            }
+
             foreach (var item in _cellsData)
             {
                 var data = item.Value;

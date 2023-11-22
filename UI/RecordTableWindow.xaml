@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:UI"
         mc:Ignorable="d"
-        Title="Таблица рекордов" Height="400" Width="500">
+        Title="Таблица рекордов" MinHeight="400" MinWidth="500" Height="400" Width="500" WindowStartupLocation="CenterScreen">
     <Grid>
         <ListView x:Name="ListView" ItemsSource="{Binding Table}">
             <ListView.View>
