@@ -10,7 +10,7 @@
 
         public Sudoku_x_(Difficult difficult, Algorithms algorithm, int size, int boxSize)
         {
-            Solved = new int[size, size];
+            Generated = new int[size, size];
 
             Difficult = difficult;
 
@@ -26,6 +26,6 @@
 
         protected abstract void Generate();
 
-        protected bool TrySolve() => _algorithm.TrySolve(Generated, Solved);
+        protected bool TrySolve() => _algorithm.TrySolve(Generated, out Solved);
     }
 }

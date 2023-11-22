@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Text.Json;
 
 namespace Sudoku.Necessary
@@ -12,18 +11,22 @@ namespace Sudoku.Necessary
 
         public static void Read()
         {
-            using (var reader = new FileStream(FILENAME, FileMode.OpenOrCreate))
+            try
             {
-                Data.Concat(JsonSerializer.Deserialize<List<RecordInformation>>(reader) ?? new()).OrderBy(i => i.Number);
+                using var reader = new FileStream(FILENAME, FileMode.OpenOrCreate);
+
+                Data.AddRange(JsonSerializer.Deserialize<List<RecordInformation>>(reader) ?? new());
+            }
+            catch (JsonException)
+            {
             }
         }
 
         public static void Save()
         {
-            using (var writer = new FileStream(FILENAME, FileMode.OpenOrCreate))
-            {
-                JsonSerializer.Serialize(writer, Data);
-            }
+            using var writer = new FileStream(FILENAME, FileMode.OpenOrCreate);
+
+            JsonSerializer.Serialize(writer, Data);
         }
     }
 }

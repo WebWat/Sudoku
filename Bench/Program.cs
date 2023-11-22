@@ -7,37 +7,38 @@ using System.Diagnostics;
 //using var writer1 = new StreamWriter("test1.txt");
 //using var writer2 = new StreamWriter("test2.txt");
 
-//for (int i = 50; i <= 100; i++)
+//for (int i = 26; i <= 45; i += 9)
 //{
 //    Console.WriteLine(i);
 //    Stopwatch stopwatch1 = Stopwatch.StartNew();
 
 //    for (int j = 0; j < 10; j++)
 //    {
-//        var s = new Sudoku9x9(Difficult.Hard, Algorithms.BruteForce, i);
+//        var s = new Sudoku9x9(Difficult.Hard, Algorithms.BruteForce);
 //    }
 //    stopwatch1.Stop();
 
 //    //writer1.WriteLine($"{i}");
 //    //writer2.WriteLine($"{stopwatch1.ElapsedMilliseconds * 1e-3:f3}");
-//    Console.WriteLine($"Total: {stopwatch1.ElapsedMilliseconds * 1e-3:f2} s");
+//    Console.WriteLine($"{stopwatch1.ElapsedMilliseconds * 1e-3:f2}");
 //}
 //Console.WriteLine("done");
 
-Stopwatch stopwatch = Stopwatch.StartNew();
-for (int j = 0; j < 1; j++)
-{
-    Stopwatch stopwatch1 = Stopwatch.StartNew();
-    var s1 = new Sudoku9x9(Difficult.Hard);
-    stopwatch1.Stop();
-    Console.WriteLine($"{stopwatch1.ElapsedMilliseconds * 1e-3:f2}");
-    Print(s1.Generated);
-    Print(s1.Solved);
-}
-stopwatch.Stop();
-Console.WriteLine($"Total: {stopwatch.ElapsedMilliseconds * 1e-3:f2} s");
+//Stopwatch stopwatch = Stopwatch.StartNew();
+//for (int j = 0; j < 200; j++)
+//{
+//    Stopwatch stopwatch1 = Stopwatch.StartNew();
+//    var s1 = new Sudoku9x9(Difficult.Hard);
+//    stopwatch1.Stop();
+//    Print(s1.Generated);
+//    Print(s1.Solved);
+//    Thread.Sleep(100);
+//    Console.WriteLine($"{stopwatch1.ElapsedMilliseconds * 1e-3:f2}");
+//}
+//stopwatch.Stop();
+//Console.WriteLine($"Total: {stopwatch.ElapsedMilliseconds * 1e-3:f2} s");
 
-//BenchmarkRunner.Run<Test>();
+BenchmarkRunner.Run<Sudoku>();
 
 
 //var a = new BruteForce(9, 3);
@@ -76,7 +77,7 @@ Console.WriteLine($"Total: {stopwatch.ElapsedMilliseconds * 1e-3:f2} s");
 //            //{ 0, 0, 0, 3, 0, 0, 4, 0, 0 },
 //            //{ 0, 1, 0, 0, 0, 0, 0, 0, 0 },
 //}, b));
-//
+//Print(b);
 
 void Print(int[,] s)
 {
@@ -113,7 +114,7 @@ public class Test
             { 2, 0, 5, 4, 0, 7, 0, 9, 6 },
             { 0, 0, 0, 0, 0, 0, 5, 0, 0 },
             { 0, 9, 0, 0, 0, 0, 0, 1, 0 },
-        }, b);
+        }, out b);
     }
 
     [Benchmark]
@@ -131,7 +132,7 @@ public class Test
             { 0, 0, 0, 0, 3, 0, 0, 2, 0 },
             { 0, 0, 0, 8, 0, 0, 0, 0, 6 },
             { 7, 0, 6, 0, 9, 0, 0, 0, 0 },
-        }, b);
+        }, out b);
     }
 
     [Benchmark]
@@ -149,7 +150,41 @@ public class Test
             { 2, 0, 7, 0, 9, 0, 0, 8, 0 },
             { 0, 0, 0, 3, 0, 0, 4, 0, 0 },
             { 0, 1, 0, 0, 0, 0, 0, 0, 0 },
-        }, b);
+        }, out b);
+    }
+}
+
+[MemoryDiagnoser]
+public class Sudoku
+{
+    //int[,] initial = new int[9, 9]
+    //{
+    //    { 1, 2, 3, 4, 5, 6, 7, 8, 9 },
+    //    { 4, 5, 6, 7, 8, 9, 1, 2, 3 },
+    //    { 7, 8, 9, 1, 2, 3, 4, 5, 6 },
+    //    { 2, 3, 4, 5, 6, 7, 8, 9, 1 },
+    //    { 5, 6, 7, 8, 9, 1, 2, 3, 4 },
+    //    { 8, 9, 1, 2, 3, 4, 5, 6, 7 },
+    //    { 3, 4, 5, 6, 7, 8, 9, 1, 2 },
+    //    { 6, 7, 8, 9, 1, 2, 3, 4, 5 },
+    //    { 9, 1, 2, 3, 4, 5, 6, 7, 8 },
+    //};
+    [Benchmark]
+    public void SudokuEasy()
+    {
+        var a = new Sudoku9x9(Difficult.Easy);
+    }
+
+    [Benchmark]
+    public void SudokuMedium()
+    {
+        var a = new Sudoku9x9(Difficult.Medium);
+    }
+
+    [Benchmark]
+    public void SudokuHard()
+    {
+        var a = new Sudoku9x9(Difficult.Hard);
     }
 }
 

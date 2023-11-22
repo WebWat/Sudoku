@@ -4,7 +4,7 @@ namespace Tests
 {
     public class BruteForceTests
     {
-        private BruteForce bruteForce = new(9, 3, 1_000_000);
+        private BruteForce bruteForce = new(9, 3, 150_000);
         private int[,] solved = new int[9, 9];
 
         [Fact]
@@ -21,7 +21,7 @@ namespace Tests
                 { 2, 0, 5, 4, 0, 7, 0, 9, 6 },
                 { 0, 0, 0, 0, 0, 0, 5, 0, 0 },
                 { 0, 9, 0, 0, 0, 0, 0, 1, 0 },
-            }, solved);
+            }, out solved);
 
             Assert.False(actual);
         }
@@ -40,7 +40,7 @@ namespace Tests
                 { 0, 0, 0, 0, 3, 0, 0, 2, 0 },
                 { 0, 0, 0, 8, 0, 0, 0, 0, 6 },
                 { 7, 0, 6, 0, 9, 0, 0, 0, 0 },
-            }, solved);
+            }, out solved);
 
             var expected = new int[9, 9]
             {
@@ -80,7 +80,7 @@ namespace Tests
                 { 4, 0, 6, 7, 5, 0, 0, 0, 0 },
                 { 0, 1, 5, 0, 8, 0, 6, 0, 0 },
                 { 0, 0, 8, 3, 1, 0, 5, 0, 0 },
-            }, solved);
+            }, out solved);
 
             var expected = new int[9, 9]
             {

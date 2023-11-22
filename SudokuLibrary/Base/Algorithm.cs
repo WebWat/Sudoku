@@ -11,6 +11,6 @@
             _boxSize = boxSize;
         }
 
-        public abstract bool TrySolve(int[,] sudoku, int[,] result);
+        public abstract bool TrySolve(int[,] sudoku, out int[,] result);
     }
 }

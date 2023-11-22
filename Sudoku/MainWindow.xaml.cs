@@ -379,8 +379,7 @@ namespace Sudoku
                     RecordTable.Data.Add(
                         new RecordInformation
                         {
-                            Number = RecordTable.Data.Count + 1,
-                            DateTime = DateTime.Now,
+                            DateTimeReceive = DateTime.Now,
                             Difficult = _sudoku.Difficult,
                             Minutes = _minutes,
                             Seconds = _seconds
@@ -575,7 +574,7 @@ namespace Sudoku
             _dispatcherTimer.Start();
         }
 
-        private async void Menu_Easy_Click(object sender, RoutedEventArgs e)
+        private async void MenuEasy_Click(object sender, RoutedEventArgs e)
         {
             ResetTimer();
             _dispatcherTimer.Stop();
@@ -593,7 +592,7 @@ namespace Sudoku
             _dispatcherTimer.Start();
         }
 
-        private async void Menu_Medium_Click(object sender, RoutedEventArgs e)
+        private async void MenuMedium_Click(object sender, RoutedEventArgs e)
         {
             ResetTimer();
             _dispatcherTimer.Stop();
@@ -611,7 +610,7 @@ namespace Sudoku
             _dispatcherTimer.Start();
         }
 
-        private async void Menu_Hard_Click(object sender, RoutedEventArgs e)
+        private async void MenuHard_Click(object sender, RoutedEventArgs e)
         {
             ResetTimer();
             _dispatcherTimer.Stop();
@@ -629,7 +628,7 @@ namespace Sudoku
             _dispatcherTimer.Start();
         }
 
-        private void Menu_Dev_Click(object sender, RoutedEventArgs e)
+        private void MenuDev_Click(object sender, RoutedEventArgs e)
         {
             ResetTimer();
             _dispatcherTimer.Stop();
@@ -639,6 +638,17 @@ namespace Sudoku
             FillGrid();
 
             _dispatcherTimer.Start();
+        }
+
+        private void MenuTable_Click(object sender, RoutedEventArgs e)
+        {
+            var window = new RecordTableWindow();
+            window.Show();
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            RecordTable.Save();
         }
         // ********************************
     }

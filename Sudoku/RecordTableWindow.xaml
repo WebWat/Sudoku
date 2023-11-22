@@ -7,14 +7,12 @@
         mc:Ignorable="d"
         Title="Таблица рекордов" Height="400" Width="500">
     <Grid>
-        <!--ItemsSource="{DynamicResource ResourceKey=phones}"-->
-        <ListView>
+        <ListView x:Name="ListView" ItemsSource="{Binding Table}">
             <ListView.View>
                 <GridView>
-                    <GridViewColumn DisplayMemberBinding="{Binding Path=Title}" Width="30">#</GridViewColumn>
-                    <GridViewColumn DisplayMemberBinding="{Binding Path=Price}" Width="200">Дата и время получения</GridViewColumn>
-                    <GridViewColumn DisplayMemberBinding="{Binding Path=Company}" Width="100">Сложность</GridViewColumn>
-                    <GridViewColumn DisplayMemberBinding="{Binding Path=Price}" Width="100">Время</GridViewColumn>
+                    <GridViewColumn DisplayMemberBinding="{Binding Path=DateTime}" Width="170">Дата и время получения</GridViewColumn>
+                    <GridViewColumn DisplayMemberBinding="{Binding Path=Difficult}" Width="170">Сложность</GridViewColumn>
+                    <GridViewColumn DisplayMemberBinding="{Binding Path=SolutionTime}" Width="100">Время</GridViewColumn>
                 </GridView>
             </ListView.View>
         </ListView>

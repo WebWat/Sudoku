@@ -8,31 +8,39 @@ namespace SudokuLibrary
         public const int BoxSize = 3;
 
         private readonly Random _random = new Random();
-        private readonly List<int> _values = new();
-        private const int _iterations = 10;
+        private readonly int[] _values = new int[Size * Size];
 
         public Sudoku9x9(Difficult difficult, Algorithms algorithm = Algorithms.BruteForce)
             : base(difficult, algorithm, Size, BoxSize)
         {
             int square = Size * Size;
-            bool failed;
+            bool failed = false;
             int temp = 0;
             int index = 0;
 
             for (int i = 0; i < square; i++)
             {
-                _values.Add(i);
+                _values[i] = i;
                 index = _random.Next(i + 1);
                 temp = _values[index];
                 _values[index] = i;
                 _values[i] = temp;
             }
 
+            Generate();
+
+            var clone = (int[,])Generated.Clone();
+
             do
             {
-                failed = false;
+                if (failed)
+                {
+                    Shuffle(_values);
+                    Generated = (int[,])clone.Clone();
+                    failed = false;
+                    //Console.WriteLine("fail");
+                }
 
-                Generate();
 
                 switch (difficult)
                 {
@@ -51,6 +59,19 @@ namespace SudokuLibrary
                 }
             }
             while (failed);
+        }
+
+        private void Shuffle(int[] array)
+        {
+            int n = array.Length;
+            while (n > 1)
+            {
+                n--;
+                int k = _random.Next(n + 1);
+                int value = array[k];
+                array[k] = array[n];
+                array[n] = value;
+            }
         }
 
         private bool ZeroFillWithCheck(int max)
@@ -73,7 +94,7 @@ namespace SudokuLibrary
                 temp = Generated[x, y];
                 Generated[x, y] = 0;
 
-                if (!TrySolve())
+                if (i > 8 && !TrySolve())
                 {
                     Generated[x, y] = temp;
 
@@ -83,7 +104,7 @@ namespace SudokuLibrary
                     _values[i] = _values[nextIndex];
                     _values[nextIndex] = temp;
 
-                    if (nextIndex + 1 == _values.Count)
+                    if (nextIndex + 1 == _values.Length)
                         return true;
                 }
                 else
@@ -99,157 +120,119 @@ namespace SudokuLibrary
 
         protected override void Generate()
         {
-            int[,] initial = new int[Size, Size]
-            {
-                { 1, 2, 3, 4, 5, 6, 7, 8, 9 },
-                { 4, 5, 6, 7, 8, 9, 1, 2, 3 },
-                { 7, 8, 9, 1, 2, 3, 4, 5, 6 },
-                { 2, 3, 4, 5, 6, 7, 8, 9, 1 },
-                { 5, 6, 7, 8, 9, 1, 2, 3, 4 },
-                { 8, 9, 1, 2, 3, 4, 5, 6, 7 },
-                { 3, 4, 5, 6, 7, 8, 9, 1, 2 },
-                { 6, 7, 8, 9, 1, 2, 3, 4, 5 },
-                { 9, 1, 2, 3, 4, 5, 6, 7, 8 },
-            };
+            FillBox(0, 0);
+            FillBox(3, 3);
+            FillBox(6, 6);
 
-            for (int i = 0; i < _iterations; i++)
+            FillRemaining(0, BoxSize);
+        }
+
+        private bool FillRemaining(int i, int j)
+        {
+            // Если дошли до конца строки, то переходим на новую
+            if (j >= Size && i < Size - 1)
             {
-                switch (_random.Next(0, 5))
+                i++;
+                j = 0;
+            }
+
+            // Если дошли до конца строки, то завершаем
+            if (i >= Size && j >= Size)
+                return true;
+
+            // Пропускаем 1 диагональный квадрат
+            if (i < BoxSize)
+            {
+                j = j < BoxSize ? BoxSize : j;
+            }
+            // Пропускаем 2 диагональный квадрат
+            else if (i < Size - BoxSize)
+            {
+                j = j == i / BoxSize * BoxSize ? j + BoxSize : j;
+            }
+            // Пропускаем 3 диагональный квадрат
+            else if (j == Size - BoxSize)
+            {
+                j = 0;
+                if (++i >= Size)
+                    return true;
+            }
+
+            for (int num = 1; num <= Size; num++)
+            {
+                if (CheckIfSafe(i, j, num))
                 {
-                    case 0:
-                        SwapRowsLine(initial);
-                        break;
-                    case 1:
-                        SwapColumnsLine(initial);
-                        break;
-                    case 2:
-                        SwapRowsAreas(initial);
-                        break;
-                    case 3:
-                        SwapColumnsAreas(initial);
-                        break;
-                    default:
-                        initial = Transpose(initial);
-                        break;
+                    Generated[i, j] = num;
+
+                    if (FillRemaining(i, j + 1))
+                        return true;
+
+                    Generated[i, j] = 0;
                 }
             }
 
-            Generated = initial;
+            return false;
         }
 
-        private void SwapRowsLine(int[,] matrix)
+        private void FillBox(int row, int column)
         {
-            var initialSpot = _random.Next(0, 2);
-            SwapRows(initialSpot, initialSpot + 1, matrix);
-
-            initialSpot = _random.Next(3, 5);
-            SwapRows(initialSpot, initialSpot + 1, matrix);
-
-            initialSpot = _random.Next(6, 8);
-            SwapRows(initialSpot, initialSpot + 1, matrix);
-        }
-
-        private void SwapColumnsLine(int[,] matrix)
-        {
-            var initialSpot = _random.Next(0, 2);
-            SwapColumns(initialSpot, initialSpot + 1, matrix);
-
-            initialSpot = _random.Next(3, 5);
-            SwapColumns(initialSpot, initialSpot + 1, matrix);
-
-            initialSpot = _random.Next(6, 8);
-            SwapColumns(initialSpot, initialSpot + 1, matrix);
-        }
-
-        private void SwapRowsAreas(int[,] matrix)
-        {
-            var firstArea = _random.Next(0, 3);
-            var secondArea = _random.Next(0, 3);
-
-            if (firstArea == secondArea)
+            int number;
+            for (int i = 0; i < BoxSize; i++)
             {
-                secondArea = secondArea < 2 ? secondArea + 1 : secondArea;
-                firstArea = firstArea == secondArea ? firstArea - 1 : firstArea;
-            }
-            else
-            {
-                var temp = firstArea;
-                firstArea = Math.Min(firstArea, secondArea);
-                secondArea = Math.Max(temp, secondArea);
-            }
-
-            firstArea *= 3;
-            secondArea *= 3;
-
-            for (int j = 0; j < 3; j++)
-            {
-                SwapRows(firstArea + j, secondArea + j, matrix);
-            }
-        }
-
-        private void SwapColumnsAreas(int[,] matrix)
-        {
-            var firstArea = _random.Next(0, 3);
-            var secondArea = _random.Next(0, 3);
-
-            if (firstArea == secondArea)
-            {
-                secondArea = secondArea < 2 ? secondArea + 1 : secondArea;
-                firstArea = firstArea == secondArea ? firstArea - 1 : firstArea;
-            }
-            else
-            {
-                var temp = firstArea;
-                firstArea = Math.Min(firstArea, secondArea);
-                secondArea = Math.Max(temp, secondArea);
-            }
-
-            firstArea *= 3;
-            secondArea *= 3;
-
-            for (int j = 0; j < 3; j++)
-            {
-                SwapColumns(firstArea + j, secondArea + j, matrix);
-            }
-        }
-
-        private int[,] Transpose(int[,] matrix)
-        {
-            var newArray = new int[Size, Size];
-
-            for (int i = 0; i < Size; i++)
-            {
-                for (int j = 0; j < Size; j++)
+                for (int j = 0; j < BoxSize; j++)
                 {
-                    newArray[j, i] = matrix[i, j];
+                    do
+                    {
+                        number = _random.Next(1, Size + 1);
+                    }
+                    while (!UsedInBox(row, column, number));
+
+                    Generated[row + i, column + j] = number;
+                }
+            }
+        }
+
+        private bool CheckIfSafe(int i, int j, int number)
+        {
+            return UsedInRow(i, number) &&
+                   UsedInCol(j, number) &&
+                   UsedInBox(i - i % BoxSize, j - j % BoxSize, number);
+        }
+
+        bool UsedInBox(int rowStart, int colStart, int num)
+        {
+            for (int i = 0; i < BoxSize; i++)
+            {
+                for (int j = 0; j < BoxSize; j++)
+                {
+                    if (Generated[rowStart + i, colStart + j] == num)
+                        return false;
                 }
             }
 
-            return newArray;
+            return true;
         }
 
-        private void SwapColumns(int firstIndex, int secondIndex, int[,] matrix)
+        private bool UsedInRow(int i, int number)
         {
-            int temp = 0;
-
-            for (int i = 0; i < Size; i++)
+            for (int j = 0; j < Size; j++)
             {
-                temp = matrix[i, firstIndex];
-                matrix[i, firstIndex] = matrix[i, secondIndex];
-                matrix[i, secondIndex] = temp;
+                if (Generated[i, j] == number)
+                    return false;
             }
+
+            return true;
         }
 
-        private void SwapRows(int firstIndex, int secondIndex, int[,] matrix)
+        private bool UsedInCol(int j, int number)
         {
-            int temp = 0;
-
             for (int i = 0; i < Size; i++)
             {
-                temp = matrix[firstIndex, i];
-                matrix[firstIndex, i] = matrix[secondIndex, i];
-                matrix[secondIndex, i] = temp;
+                if (Generated[i, j] == number)
+                    return false;
             }
+
+            return true;
         }
     }
 }
