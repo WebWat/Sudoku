@@ -1,4 +1,4 @@
-using SudokuLibrary;
+using SudokuLibrary.SolvingAlgorithms;
 
 namespace Tests
 {

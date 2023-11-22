@@ -1,9 +1,9 @@
 ﻿using Sudoku.Necessary;
 using SudokuLibrary;
+using SudokuLibrary.Sudoku;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -16,7 +16,9 @@ namespace Sudoku
 {
     public partial class MainWindow : Window
     {
+        // Словарь ячеек
         private Dictionary<int, UICell> _cellsData = new();
+
         // Словарь, необходимый для работы с UI
         private Dictionary<int, Border> _borders = new();
 
@@ -27,6 +29,7 @@ namespace Sudoku
         // Решение судоку
         private Sudoku9x9 _sudoku;
 
+        // Секундомер
         private DispatcherTimer _dispatcherTimer;
         private int _minutes;
         private int _seconds;
@@ -38,7 +41,7 @@ namespace Sudoku
         private TextBox? _currentError;
 
         private readonly SolidColorBrush _focusBackgroundColor = new(Color.FromRgb(190, 230, 253));
-        private readonly SolidColorBrush _errorForegroundColor = new(Colors.Red);//new(Color.FromRgb(192, 38, 38));
+        private readonly SolidColorBrush _errorForegroundColor = new(Colors.Red);
 
         public MainWindow()
         {
@@ -66,6 +69,7 @@ namespace Sudoku
             var boxBorder = new Border();
 
             boxBorder.BorderBrush = Brushes.Black;
+            boxBorder.BorderThickness = new Thickness(0.5);
             boxBorder.SetValue(Grid.RowProperty, row);
             boxBorder.SetValue(Grid.ColumnProperty, column);
 
@@ -157,7 +161,7 @@ namespace Sudoku
 
         // Возвращаем значения по умолчанию для ячеек конфликтов
         // и удаляем ссылки на них
-        private void ClearErrorCells(bool isUnchecked, object reference)
+        private void ClearErrorCells(bool isUnchecked, object? reference)
         {
             if (_rowError != null)
             {
@@ -196,10 +200,23 @@ namespace Sudoku
 
         private void FillGrid()
         {
+            NoteMode.IsChecked = false;
+            ErrorPreventionMode.IsChecked = false;
+
             foreach (var item in _cellsData)
             {
                 var data = item.Value;
                 var value = _sudoku.Generated[data.Row, data.Column].ToString();
+
+                if (data.TextBox.Opacity == 0)
+                {
+                    for (int i = 0; i < data.Labels.Count(); i++)
+                    {
+                        data.Labels[i].Content = null;
+                    }
+
+                    data.TextBox.Opacity++;
+                }
 
                 data.TextBox.Foreground = Brushes.Black;
 
@@ -210,7 +227,7 @@ namespace Sudoku
                 }
                 else
                 {
-                    data.TextBox.Text = null; 
+                    data.TextBox.Text = null;
                     data.IsSolved = false;
                 }
             }
@@ -221,6 +238,24 @@ namespace Sudoku
             Time.Content = "00:00";
             _minutes = 0;
             _seconds = 0;
+        }
+
+        private void CheckWin()
+        {
+            if (_cellsData.All(i => i.Value.IsSolved))
+            {
+                _dispatcherTimer.Stop();
+                MessageBox.Show("Судоку решено!");
+
+                RecordTable.Data.Add(
+                    new RecordInformation
+                    {
+                        DateTimeReceive = DateTime.Now,
+                        Difficult = _sudoku.Difficult,
+                        Minutes = _minutes,
+                        Seconds = _seconds
+                    });
+            }
         }
 
         // Обработчики событий
@@ -353,7 +388,10 @@ namespace Sudoku
                 else
                 {
                     data.TextBox.Text = e.Text;
+                    data.IsSolved = true;
                 }
+
+                CheckWin();
 
                 return;
             }
@@ -368,23 +406,9 @@ namespace Sudoku
             else
             {
                 data.TextBox.Foreground = Brushes.Black;
-                Keyboard.ClearFocus();
                 data.IsSolved = true;
 
-                if (_cellsData.All(i => i.Value.IsSolved))
-                {
-                    _dispatcherTimer.Stop();
-                    MessageBox.Show("Судоку решено!");
-
-                    RecordTable.Data.Add(
-                        new RecordInformation
-                        {
-                            DateTimeReceive = DateTime.Now,
-                            Difficult = _sudoku.Difficult,
-                            Minutes = _minutes,
-                            Seconds = _seconds
-                        });
-                }
+                CheckWin();
             }
 
             data.TextBox.Text = e.Text;

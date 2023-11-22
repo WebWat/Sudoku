@@ -3,13 +3,13 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.7.34024.191
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Sudoku", "Sudoku\Sudoku.csproj", "{DE6BFF32-52ED-470B-A7C9-5DD3CC55C16B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UI", "Sudoku\UI.csproj", "{DE6BFF32-52ED-470B-A7C9-5DD3CC55C16B}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bench", "Bench\Bench.csproj", "{B647FEE2-FDD9-4CA4-8547-10224F6FDA99}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SudokuLibrary", "SudokuLibrary\SudokuLibrary.csproj", "{B5F818A3-5FE3-4F0C-9603-EB3891E1B232}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{A2FA65A9-9E3D-4960-8780-FC3A54136061}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests.csproj", "{A2FA65A9-9E3D-4960-8780-FC3A54136061}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

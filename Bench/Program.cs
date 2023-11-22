@@ -1,8 +1,8 @@
 ﻿using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
 using SudokuLibrary;
-using SudokuLibrary.Base;
-using System.Diagnostics;
+using SudokuLibrary.SolvingAlgorithms;
+using SudokuLibrary.Sudoku;
 
 //using var writer1 = new StreamWriter("test1.txt");
 //using var writer2 = new StreamWriter("test2.txt");

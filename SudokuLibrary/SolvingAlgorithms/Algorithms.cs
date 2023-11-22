@@ -1,4 +1,4 @@
-﻿namespace SudokuLibrary
+﻿namespace SudokuLibrary.SolvingAlgorithms
 {
     public enum Algorithms
     {

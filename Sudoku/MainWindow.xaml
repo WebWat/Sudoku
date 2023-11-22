@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Sudoku"
         mc:Ignorable="d"
-        Title="Судоку" Height="650" Width="500" ResizeMode="NoResize" Closing="Window_Closing">
+        Title="Судоку" MinHeight="650" MinWidth="800" Height="650" Width="800" ResizeMode="CanResize" Closing="Window_Closing">
     <Grid x:Name="BaseGrid">
         <Grid.Resources>
             <Style TargetType="Border">
@@ -24,24 +24,30 @@
                 <Setter Property="VerticalContentAlignment" Value="Center"></Setter>
                 <Setter Property="HorizontalContentAlignment" Value="Center"></Setter>
             </Style>
+            <Style TargetType="ToggleButton">
+                <Setter Property="Width" Value="145"></Setter>
+                <Setter Property="Height" Value="60"></Setter>
+                <Setter Property="VerticalAlignment" Value="Center"></Setter>
+            </Style>
         </Grid.Resources>
         
         <Grid.RowDefinitions>
             <RowDefinition Height="20"></RowDefinition>
-            <RowDefinition Height="10"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
             <RowDefinition Height="150"></RowDefinition>
             <RowDefinition Height="150"></RowDefinition>
             <RowDefinition Height="150"></RowDefinition>
-            <RowDefinition Height="10"></RowDefinition>
-            <RowDefinition></RowDefinition>
-            <RowDefinition></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+            <RowDefinition Height="50"></RowDefinition>
+            <RowDefinition Height="70"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="10"></ColumnDefinition>
-            <ColumnDefinition></ColumnDefinition>
-            <ColumnDefinition></ColumnDefinition>
-            <ColumnDefinition></ColumnDefinition>
-            <ColumnDefinition Width="10"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
+            <ColumnDefinition Width="150"></ColumnDefinition>
+            <ColumnDefinition Width="150"></ColumnDefinition>
+            <ColumnDefinition Width="150"></ColumnDefinition>
+            <ColumnDefinition Width="*"></ColumnDefinition>
         </Grid.ColumnDefinitions>
 
         <Menu Height="20" Grid.ColumnSpan="6">
@@ -53,9 +59,37 @@
             </MenuItem>
             <MenuItem Header="Таблица рекордов" Click="MenuTable_Click"></MenuItem>
         </Menu>
-        <Label Grid.Column="2" Grid.Row="6" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" FontSize="18" x:Name="Time">00:00</Label>
-        <ToggleButton x:Name="NoteMode" Content="Режим заметок" Grid.Column="1" Grid.Row="7" Checked="NoteMode_Checked" Unchecked="NoteMode_Unchecked"></ToggleButton>
-        <ToggleButton x:Name="ErrorPreventionMode"  Content="Режим предотвращения ошибок" Grid.Column="2" Grid.Row="7" Checked="ErrorPreventionMode_Checked" Unchecked="ErrorPreventionMode_Unchecked"></ToggleButton>
-        <ToggleButton Content="Приостановить" Grid.Column="3" Grid.Row="7" Checked="StopSudoku_Checked" Unchecked="StopSudoku_Unchecked"></ToggleButton>
+        <Label 
+            x:Name="Time"
+            Grid.Row="6" 
+            Grid.Column="2" 
+            VerticalContentAlignment="Center" 
+            HorizontalContentAlignment="Center" 
+            FontSize="18">
+            00:00
+        </Label>
+        <ToggleButton 
+            x:Name="NoteMode" 
+            Grid.Row="7" 
+            Grid.Column="1" 
+            Checked="NoteMode_Checked" 
+            Unchecked="NoteMode_Unchecked">
+            Режим заметок
+        </ToggleButton>
+        <ToggleButton 
+            x:Name="ErrorPreventionMode" 
+            Grid.Row="7" 
+            Grid.Column="2"
+            Checked="ErrorPreventionMode_Checked" 
+            Unchecked="ErrorPreventionMode_Unchecked">
+            <TextBlock TextAlignment="Center">Режим предотвращения<LineBreak/>ошибок</TextBlock>
+        </ToggleButton>
+        <ToggleButton 
+            Grid.Row="7" 
+            Grid.Column="3" 
+            Checked="StopSudoku_Checked" 
+            Unchecked="StopSudoku_Unchecked">
+            Приостановить
+        </ToggleButton>
     </Grid>
 </Window>
