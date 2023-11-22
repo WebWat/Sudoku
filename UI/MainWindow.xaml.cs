@@ -270,13 +270,13 @@ namespace UI
         // ********************************
         private void DispatcherTimer_Tick(object sender, EventArgs e)
         {
-            Time.Content = $"{_minutes:d2}:{++_seconds:d2}";
-
-            if (_seconds > 59)
+            if (++_seconds > 59)
             {
                 _minutes++;
                 _seconds = 0;
             }
+
+            Time.Content = $"{_minutes:d2}:{_seconds:d2}";
         }
 
         private void TextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)

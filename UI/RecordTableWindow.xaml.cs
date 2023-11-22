@@ -26,7 +26,7 @@ namespace UI
 
             Table = new();
             RecordTable.Read();
-            var data = RecordTable.GetList().OrderBy(i => (i.Minutes == 0 ? 1 : i.Minutes) * i.Seconds).ToList();
+            var data = RecordTable.GetList().OrderBy(i => i.Minutes * 60 + i.Seconds).ToList();
 
             RecordInformation temp;
 
