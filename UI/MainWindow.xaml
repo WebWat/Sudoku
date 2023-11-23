@@ -47,7 +47,7 @@
         </Grid.ColumnDefinitions>
 
         <Menu Height="20" Grid.ColumnSpan="6">
-            <MenuItem Header="Новая игра">
+            <MenuItem x:Name="NewGameMenu" Header="Новая игра">
                 <MenuItem Header="Легкий уровень" Click="MenuEasy_Click"></MenuItem>
                 <MenuItem Header="Средний уровень" Click="MenuMedium_Click"></MenuItem>
                 <MenuItem Header="Сложный уровень" Click="MenuHard_Click"></MenuItem>

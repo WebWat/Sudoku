@@ -589,11 +589,9 @@ namespace UI
                     border.IsEnabled = false;
                     border.Child.Opacity = 0;
                 }
-                else if (item is Menu menu)
-                {
-                    menu.IsEnabled = false;
-                }
             }
+
+            NewGameMenu.IsEnabled = false;
         }
 
         private void StopSudoku_Unchecked(object sender, RoutedEventArgs e)
@@ -605,11 +603,9 @@ namespace UI
                     border.IsEnabled = true;
                     border.Child.Opacity = 1;
                 }
-                else if (item is Menu menu)
-                {
-                    menu.IsEnabled = true;
-                }
             }
+
+            NewGameMenu.IsEnabled = true;
 
             _dispatcherTimer.Start();
         }
