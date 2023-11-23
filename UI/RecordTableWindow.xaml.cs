@@ -37,7 +37,7 @@ namespace UI
                 Table.Add(new Info
                 {
                     DateTime = temp.DateTimeReceive.ToString("dd.MM.yyyy HH:mm:ss"),
-                    SolutionTime = $"{temp.Minutes}:{temp.Seconds}",
+                    SolutionTime = $"{temp.Minutes:d2}:{temp.Seconds:d2}",
                     Difficult = NameOfDifficult(temp.Difficult)
                 });
             }

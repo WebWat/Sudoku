@@ -17,10 +17,10 @@ namespace UI
     public partial class MainWindow : Window
     {
         // Словарь ячеек
-        private Dictionary<int, UICell> _cellsData = new();
+        private readonly Dictionary<int, UICell> _cellsData = new();
 
         // Словарь, необходимый для работы с UI
-        private Dictionary<int, Border> _borders = new();
+        private readonly Dictionary<int, Border> _borders = new();
 
         // Смещение относительно BaseGrid
         private const int _rowOffset = 2;
@@ -47,8 +47,6 @@ namespace UI
         {
             InitializeComponent();
 
-            _sudoku = new Sudoku9x9(Difficult.Easy);
-
             for (int i = 0; i < SUDOKU_GRID.BOX_SIZE; i++)
             {
                 for (int j = 0; j < SUDOKU_GRID.BOX_SIZE; j++)
@@ -60,7 +58,6 @@ namespace UI
             _dispatcherTimer = new();
             _dispatcherTimer.Tick += new EventHandler(DispatcherTimer_Tick!);
             _dispatcherTimer.Interval = TimeSpan.FromSeconds(1);
-            _dispatcherTimer.Start();
         }
 
         // Метод для создания UniformGrid размером 3x3
@@ -112,17 +109,13 @@ namespace UI
             border.SetValue(Grid.ColumnProperty, 0);
             border.SetValue(Grid.RowSpanProperty, 3);
             border.SetValue(Grid.ColumnSpanProperty, 3);
+            border.BorderThickness = new Thickness(0.5);
+            border.BorderBrush = Brushes.Gray;
+            border.Background = Brushes.White;
 
             var textBox = new TextBox();
             textBox.SetValue(Grid.RowProperty, 1);
             textBox.SetValue(Grid.ColumnProperty, 1);
-
-            var value = _sudoku.Generated[row, column].ToString();
-
-            if (value != "0")
-            {
-                textBox.Text = value;
-            }
 
             var labelsGrid = new UniformGrid();
             Label[] labels = new Label[SUDOKU_GRID.SIZE];
@@ -151,7 +144,7 @@ namespace UI
             {
                 Row = row,
                 Column = column,
-                IsSolved = value != "0",
+                IsSolved = true,
                 TextBox = textBox,
                 Labels = labels
             });
@@ -198,6 +191,7 @@ namespace UI
             }
         }
 
+        // Заполнение сетки новым судоку
         private void FillGrid()
         {
             NoteMode.IsEnabled = true;
@@ -212,9 +206,10 @@ namespace UI
                 var data = item.Value;
                 var value = _sudoku.Generated[data.Row, data.Column].ToString();
 
+                // Возвращаем в исходное состояние
                 if (data.TextBox.Opacity == 0)
                 {
-                    for (int i = 0; i < data.Labels.Count(); i++)
+                    for (int i = 0; i < data.Labels.Length; i++)
                     {
                         data.Labels[i].Content = null;
                     }
@@ -237,6 +232,7 @@ namespace UI
             }
         }
 
+        // Сброс таймера
         private void ResetTimer()
         {
             Time.Content = "00:00";
@@ -244,6 +240,7 @@ namespace UI
             _seconds = 0;
         }
 
+        // Проверка выигрыша
         private void CheckWin()
         {
             if (_cellsData.All(i => i.Value.IsSolved))
@@ -294,9 +291,11 @@ namespace UI
 
             // Отклоняем ввод
             e.Handled = true;
+
             // Если включен режим "Создание заметок"
             if (NoteMode.IsChecked == true)
             {
+                // Если поле уже заполнено, то прерываем
                 if (data.TextBox.Text.Length == 1)
                 {
                     return;
@@ -358,14 +357,11 @@ namespace UI
                 // Очищаем конфликтные ячейки
                 ClearErrorCells(false, sender);
 
-                // Если ответ неверен, то выделяем конфликтующие ячейки
                 if (e.Text != answer)
                 {
-                    // Ищем ошибку в строке
                     _rowError = _cellsData.Values.FirstOrDefault(cell =>
                         cell.Row == data.Row && cell.TextBox.Text == e.Text)?.TextBox;
 
-                    // Ищем ошибку в столбце
                     _columnError = _cellsData.Values.FirstOrDefault(cell =>
                         cell.Column == data.Column && cell.TextBox.Text == e.Text)?.TextBox;
 
@@ -374,7 +370,6 @@ namespace UI
                     var columnLeftBorder = data.Column - (data.Column % SUDOKU_GRID.BOX_SIZE);
                     var columnRightBorder = columnLeftBorder + SUDOKU_GRID.BOX_SIZE;
 
-                    // Ищем ошибку в квадрате
                     _boxError = _cellsData.Values.FirstOrDefault(cell =>
                         cell.Row >= rowLeftBorder && cell.Row < rowRightBorder &&
                         cell.Column >= columnLeftBorder && cell.Column < columnRightBorder &&
@@ -505,6 +500,7 @@ namespace UI
 
         private void NoteMode_Checked(object sender, RoutedEventArgs e)
         {
+            // Исключаем включение другого режима
             if (ErrorPreventionMode.IsChecked == true)
             {
                 NoteMode.IsChecked = false;
@@ -530,6 +526,7 @@ namespace UI
 
         private void NoteMode_Unchecked(object sender, RoutedEventArgs e)
         {
+            // Исключаем включение другого режима
             if (ErrorPreventionMode.IsChecked == true)
             {
                 return;
@@ -550,6 +547,7 @@ namespace UI
 
         private void ErrorPreventionMode_Checked(object sender, RoutedEventArgs e)
         {
+            // Исключаем включение другого режима
             if (NoteMode.IsChecked == true)
             {
                 ErrorPreventionMode.IsChecked = false;
@@ -571,7 +569,12 @@ namespace UI
 
         private void ErrorPreventionMode_Unchecked(object sender, RoutedEventArgs e)
         {
-            // Очищаем конфликтные ячейки
+            // Исключаем включение другого режима
+            if (NoteMode.IsChecked == true)
+            {
+                return;
+            }
+
             ClearErrorCells(true, null);
         }
 

@@ -10,25 +10,28 @@ namespace SudokuLibrary.Sudoku
             : base(difficult, algorithm, 9, 3)
         {
             int square = Size * Size;
-            _values = new int[Size * Size];
+            // Создаем массив индексов
+            _values = new int[square];
             bool failed = false;
             int temp, index;
 
             for (int i = 0; i < square; i++)
             {
                 _values[i] = i;
-                index = _random.Next(i + 1);
-                temp = _values[index];
-                _values[index] = i;
-                _values[i] = temp;
             }
+
+            Shuffle(_values);
 
             Generate();
 
+            // Сохраняем копию сгенерированного массива,
+            // т.к. Generated может измениться в процессе генерации
             var clone = (int[,])Generated.Clone();
 
             do
             {
+                // Если не получись сгенерировать,
+                // перемешиваем массив
                 if (failed)
                 {
                     Shuffle(_values);
@@ -57,6 +60,7 @@ namespace SudokuLibrary.Sudoku
 
         private protected override void Generate()
         {
+            // Случайно заполняем диагональные квадраты
             for (int i = 0; i < Size; i += BoxSize)
             {
                 FillBox(i, i);
@@ -65,6 +69,7 @@ namespace SudokuLibrary.Sudoku
             FillRemaining(0, BoxSize);
         }
 
+        // Метод перемешивания массива
         private void Shuffle(int[] array)
         {
             int k, value, n = array.Length;
@@ -78,9 +83,11 @@ namespace SudokuLibrary.Sudoku
             }
         }
 
+        // Заполняем массив нулями
         private bool FillWithZeros(int max)
         {
             int i = 0;
+            // Смещение элемента, относительно i
             int offset = 1;
             int current, x, y, temp, nextIndex;
 
@@ -88,22 +95,29 @@ namespace SudokuLibrary.Sudoku
             {
                 current = _values[i];
 
+                // Получаем индексы для двумерного массива через одномерный
                 x = current / Size;
                 y = current - x * Size;
 
                 temp = Generated[x, y];
                 Generated[x, y] = 0;
 
+                // "Пропускаем первые 8 чисел" И если уникальное решение не найдено,
+                // то меняем местами значение
                 if (i > 8 && !TrySolve())
                 {
                     Generated[x, y] = temp;
 
                     temp = _values[i];
+                    // Увеличиваем индекс для подбора следующего элемента
+                    // в случае неудачи
                     nextIndex = i + offset++;
 
+                    // Берем следующий элемент
                     _values[i] = _values[nextIndex];
                     _values[nextIndex] = temp;
 
+                    // Если достигли конца и ничего не нашли, выходим из метода 
                     if (nextIndex + 1 == _values.Length)
                         return true;
                 }
@@ -116,6 +130,8 @@ namespace SudokuLibrary.Sudoku
 
             return false;
         }
+
+        // Заполнение оставшихся ячеек
         private bool FillRemaining(int i, int j)
         {
             // Если дошли до конца строки, то переходим на новую
@@ -163,6 +179,7 @@ namespace SudokuLibrary.Sudoku
             return false;
         }
 
+        // Заполнение квадрата случайными числами
         private void FillBox(int row, int column)
         {
             int number;
@@ -181,6 +198,7 @@ namespace SudokuLibrary.Sudoku
             }
         }
 
+        // Полная проверка
         private bool CheckIfSafe(int i, int j, int number)
         {
             return UsedInRow(i, number) &&
@@ -188,6 +206,7 @@ namespace SudokuLibrary.Sudoku
                    UsedInBox(i - i % BoxSize, j - j % BoxSize, number);
         }
 
+        // Проверка наличия похожего элемента в квадрате
         bool UsedInBox(int rowStart, int colStart, int num)
         {
             for (int i = 0; i < BoxSize; i++)
@@ -202,6 +221,7 @@ namespace SudokuLibrary.Sudoku
             return true;
         }
 
+        // Проверка наличия похожего элемента в строке
         private bool UsedInRow(int i, int number)
         {
             for (int j = 0; j < Size; j++)
@@ -213,6 +233,7 @@ namespace SudokuLibrary.Sudoku
             return true;
         }
 
+        // Проверка наличия похожего элемента в колонке
         private bool UsedInCol(int j, int number)
         {
             for (int i = 0; i < Size; i++)

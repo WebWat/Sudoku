@@ -47,6 +47,7 @@
             if (_iteration > _maxIterations)
                 return false;
 
+            // Верно, если имеет только единственное решение
             var isSolved = _solutionCount == 1;
 
             if (isSolved)
@@ -57,12 +58,14 @@
             return isSolved;
         }
 
+        // Метод рекурсивного обхода судоку
         private bool SolveNext(int index)
         {
             _iteration++;
 
             if (index == _cellsToSolve.Count)
             {
+                // Записываем самое первое решение
                 if (++_solutionCount == 1)
                 {
                     for (int i = 0; i < Size; i++)
@@ -102,6 +105,7 @@
             return false;
         }
 
+        // Получаем возможные значения в данной ячейке
         private List<int> GetMarkers(Cell cell)
         {
             List<int> markers;
@@ -119,12 +123,14 @@
             return markers;
         }
 
+        // Получаем НЕвозможные значения в данной ячейке
         private List<int> GetAll(int x, int y)
         {
             var result = new List<int>();
 
             Cell cell;
 
+            // Поиск в строке и столбце
             for (int i = 0; i < Size; i++)
             {
                 cell = _cells[x, i];
@@ -141,6 +147,7 @@
             iBox *= BoxSize;
             jBox *= BoxSize;
 
+            // Поиск в квадрате
             for (int i = iBox; i < iBoxMax; i++)
             {
                 for (int j = jBox; j < jBoxMax; j++)

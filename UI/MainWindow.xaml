@@ -8,10 +8,6 @@
         Title="Судоку" MinHeight="650" MinWidth="800" Height="650" Width="800" ResizeMode="CanResize" Closing="Window_Closing">
     <Grid x:Name="BaseGrid">
         <Grid.Resources>
-            <Style TargetType="Border">
-                <Setter Property="BorderThickness" Value="0.7"></Setter>
-                <Setter Property="BorderBrush" Value="Gray"></Setter>
-            </Style>
             <Style TargetType="Label">
                 <Setter Property="Padding" Value="0"></Setter>
                 <Setter Property="VerticalContentAlignment" Value="Center"></Setter>
@@ -69,7 +65,8 @@
             00:00
         </Label>
         <ToggleButton 
-            x:Name="NoteMode" 
+            x:Name="NoteMode"
+            IsEnabled="false"
             Grid.Row="7" 
             Grid.Column="1" 
             Checked="NoteMode_Checked" 
@@ -78,6 +75,7 @@
         </ToggleButton>
         <ToggleButton 
             x:Name="ErrorPreventionMode" 
+            IsEnabled="false"
             Grid.Row="7" 
             Grid.Column="2"
             Checked="ErrorPreventionMode_Checked" 
@@ -88,6 +86,7 @@
             x:Name="Timer"
             Grid.Row="7" 
             Grid.Column="3" 
+            IsEnabled="false"
             Checked="StopSudoku_Checked" 
             Unchecked="StopSudoku_Unchecked">
             Приостановить
