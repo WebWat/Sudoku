@@ -26,21 +26,26 @@ namespace UI
 
             Table = new();
             RecordTable.Read();
-            var data = RecordTable.GetList().OrderBy(i => i.Minutes * 60 + i.Seconds).ToList();
+            var group = RecordTable.GetList().GroupBy(i => i.Difficult).ToList();
+            var result = new List<RecordInformation>();
 
             RecordInformation temp;
 
-            for (int i = 0; i < data.Count; i++)
+            group.ForEach(element =>
             {
-                temp = data[i];
+                result.AddRange(element.OrderBy(time => time.Minutes * 60 + time.Seconds).Take(10));
+            });
 
-                Table.Add(new Info
-                {
-                    DateTime = temp.DateTimeReceive.ToString("dd.MM.yyyy HH:mm:ss"),
-                    SolutionTime = $"{temp.Minutes:d2}:{temp.Seconds:d2}",
-                    Difficult = NameOfDifficult(temp.Difficult)
-                });
-            }
+            Table = result.OrderBy(time => time.Minutes * 60 + time.Seconds)
+                    .Select(item =>
+                    {
+                        return new Info
+                        {
+                            DateTime = item.DateTimeReceive.ToString("dd.MM.yyyy HH:mm:ss"),
+                            SolutionTime = $"{item.Minutes:d2}:{item.Seconds:d2}",
+                            Difficult = NameOfDifficult(item.Difficult)
+                        };
+                    }).ToList();
 
             ListView.ItemsSource = Table;
         }

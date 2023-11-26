@@ -13,7 +13,6 @@ namespace SudokuLibrary.Sudoku
             // Создаем массив индексов
             _values = new int[square];
             bool failed = false;
-            int temp, index;
 
             for (int i = 0; i < square; i++)
             {
@@ -202,18 +201,18 @@ namespace SudokuLibrary.Sudoku
         private bool CheckIfSafe(int i, int j, int number)
         {
             return UsedInRow(i, number) &&
-                   UsedInCol(j, number) &&
+                   UsedInColumn(j, number) &&
                    UsedInBox(i - i % BoxSize, j - j % BoxSize, number);
         }
 
         // Проверка наличия похожего элемента в квадрате
-        bool UsedInBox(int rowStart, int colStart, int num)
+        bool UsedInBox(int rowStart, int columnStart, int number)
         {
             for (int i = 0; i < BoxSize; i++)
             {
                 for (int j = 0; j < BoxSize; j++)
                 {
-                    if (Generated[rowStart + i, colStart + j] == num)
+                    if (Generated[rowStart + i, columnStart + j] == number)
                         return false;
                 }
             }
@@ -234,7 +233,7 @@ namespace SudokuLibrary.Sudoku
         }
 
         // Проверка наличия похожего элемента в колонке
-        private bool UsedInCol(int j, int number)
+        private bool UsedInColumn(int j, int number)
         {
             for (int i = 0; i < Size; i++)
             {
@@ -244,6 +243,5 @@ namespace SudokuLibrary.Sudoku
 
             return true;
         }
-
     }
 }

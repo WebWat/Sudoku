@@ -503,8 +503,7 @@ namespace UI
             // Исключаем включение другого режима
             if (ErrorPreventionMode.IsChecked == true)
             {
-                NoteMode.IsChecked = false;
-                return;
+                ErrorPreventionMode.IsChecked = false;
             }
 
             foreach (var item in _cellsData)
@@ -526,12 +525,6 @@ namespace UI
 
         private void NoteMode_Unchecked(object sender, RoutedEventArgs e)
         {
-            // Исключаем включение другого режима
-            if (ErrorPreventionMode.IsChecked == true)
-            {
-                return;
-            }
-
             foreach (var item in _cellsData)
             {
                 var data = item.Value;
@@ -550,8 +543,7 @@ namespace UI
             // Исключаем включение другого режима
             if (NoteMode.IsChecked == true)
             {
-                ErrorPreventionMode.IsChecked = false;
-                return;
+                NoteMode.IsChecked = false;
             }
 
             foreach (var item in _cellsData)
@@ -569,12 +561,6 @@ namespace UI
 
         private void ErrorPreventionMode_Unchecked(object sender, RoutedEventArgs e)
         {
-            // Исключаем включение другого режима
-            if (NoteMode.IsChecked == true)
-            {
-                return;
-            }
-
             ClearErrorCells(true, null);
         }
 
